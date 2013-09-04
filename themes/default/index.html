@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head>
+	<title>Nebulosa IRC Client</title>
+	<!-- Required libraries and styles -->
+	<link rel="stylesheet" href="/css/uikit.min.css" />
+	<script src="/js/jquery.min.js"></script>
+	<script src="/js/uikit.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<!-- Client libraries and styles -->
+	<link rel="stylesheet" href="/css/screen.css" />
+</head>
+<body>
+	<div id="container">
+		<!-- First Row (Navbar) -->
+		<div class="uk-float-left uk-width-1-1">
+			<nav class="uk-navbar" style="border-bottom: 1px solid #ddd;">
+				<a href="#" class="uk-navbar-toggle"></a>
+				<ul class="uk-navbar-nav">
+					<li><a href="#">New server</a></li>
+					<li class="uk-parent" data-uk-dropdown><a href="#">Scripts</a>
+						<div class="uk-dropdown uk-dropdown-navbar">
+							<ul class="uk-nav uk-nav-navbar">
+								<li><a href="#">New script</a></li>
+								<li><a href="#">Manage active scripts</a></li>
+							</ul>
+						</div>
+					</li>
+				</ul>
+			</nav>
+		</div>
+		<!-- Second Row (Channels / Chat View / User list) -->
+		<div id="leftbar" class="uk-panel uk-panel-box uk-panel-box-secondary">
+			<ul id="chanlist" class="chanlist uk-list uk-list-line">
+				<!--<li><a href="#">Ponychat</a>
+					<ul class="uk-list sublist">
+						<a href="#"><li>#lolle</li></a>
+						<a href="#"><li>#Fillywood</li></a>
+					</ul>
+				</li>
+				<li><a href="#">Azzurra</a>
+					<ul class="uk-list sublist">
+						<a href="#"><li>#ahaha</li></a>
+					</ul>
+				</li>-->
+			</ul>
+		</div>
+		<div id="centerbar" class="uk-panel uk-panel-box">
+			<ul id="chatmessages" class="uk-list uk-list-striped">
+				<!--<li><div class="username"><div class="symbol">@</div>Biggiei</div>MESSAGGIO</li>
+				<li><div class="username">Uomolunghissimissimo</div>MESSAGGIA</li>
+				<li><div class="username"><div class="symbol">@</div>Biggiei</div>MESSAGGIE</li>-->
+			</ul>
+			<div id="inputbarcont" class="uk-form">
+				<input type="text" id="inputbar" />
+			</div>
+		</div>
+		<div id="rightbar" class="uk-panel">
+			<ul id="userlist" class="uk-list us-list">
+				<!--<li><div class="symbol">@</div>Biggiei</li>
+				<li><div class="symbol">+</div>Irish</li>
+				<li><div class="symbol"></div>Negritus</li>-->
+			</ul>
+		</div>
+	</div>
+</body>
+</html>
