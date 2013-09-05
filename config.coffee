@@ -5,6 +5,11 @@ servers = Object.create null
 
 ## EDIT 'FROM' HERE
 
+# General configuration
+
+general =
+	bufferSize : 20 	# How many messages do you want to memorize
+
 # Webserver configuration
 
 webserver = 
@@ -21,9 +26,8 @@ webserver =
 
 servers.template = 
 	name     : "Example server"
-	address  : "irc.example.com:6667"	# Optional :PORT (default 6667)
-	nickname : "mynick"					# Default nickname 
-	altnick  : "mynick????"				# Alternate nickname (? means random number)
+	address  : "irc.example.com"
+	nickname : "mynick"					# Default nickname
 	realname : "My real name here"		# Real name
 	# Channels to join when connected
 	autojoin : [ "#example", "#coders" ]
@@ -32,17 +36,16 @@ servers.template =
 
 servers.ponychat = 
 	name     : "Ponychat"
-	address  : "irc.ponychat.net"	# Optional :PORT (default 6667)
-	nickname : "twalot"				# Default nickname 
-	altnick  : "twalot????"			# Alternate nickname (? means random number)
-	realname : "flotrshi sistah"	# Real name
+	address  : "irc.ponychat.net"
+	nickname : "nebulosa"			 # Default nickname
+	realname : "Nebulosa IRC Client" # Real name
 	# Channels to join when connected
-	autojoin : [ "#testbass", "#brony.it" ]
+	autojoin : [ "#testbass" ]
 
 ## DON'T EDIT BELOW THIS POINT (or things will turn ugly)
 
-svalues = s for s of servers
 module.exports =
-	servers : svalues
+	servers : servers
 	webconf : webserver
-	
+
+module.exports[x] = y for x,y of general
