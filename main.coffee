@@ -27,7 +27,7 @@ io.sockets.on 'connection', (socket) ->
 	ircsrv.initClient socket
 	ircsrv.sendBuffers socket
 	# Proxy all events to the ClientProxy
-	#proxy ClientProxy, clientMap, socket, socket
+	proxy ClientProxy, clientMap, socket, socket
 	return
 
 console.log "Webserver listening @ port " + config.webconf.bindport

@@ -14,13 +14,25 @@
   });
 
   /*
+  On Network data (Startup)
+  */
+
+
+  socket.on('self', function(data) {
+    return window["interface"].nickname(data.nickname);
+  });
+
+  /*
   On IRC Message
   */
 
 
   socket.on('message', function(data) {
-    console.log(data);
     return window["interface"].addMessage(data);
   });
+
+  window.interop = {
+    socket: socket
+  };
 
 }).call(this);

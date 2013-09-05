@@ -8,6 +8,7 @@
     self.networks = ko.observableArray([]);
     self.currentNetwork = ko.observable("ponychat");
     self.currentChannel = ko.observable("#testbass");
+    self.messageBar = ko.observable("");
     self.userlist = ko.observable({});
     self.messages = ko.observable({});
     self.channelUsers = ko.computed(function() {
@@ -15,6 +16,18 @@
     });
     self.channelActivity = ko.computed(function() {
       return self.messages()[self.currentNetwork() + self.currentChannel()];
+    });
+    self.currentNickname = ko.computed(function() {
+      var curnet, nets;
+      curnet = self.currentNetwork();
+      nets = self.networks().filter(function(x) {
+        return x.id === curnet;
+      });
+      if (nets[0] != null) {
+        return nets[0].nickname;
+      } else {
+        return null;
+      }
     });
     self.addMessage = function(data) {
       var msgs;
@@ -28,6 +41,24 @@
       });
       return self.messages(msgs);
     };
+    self.sendMessage = function() {
+      var message, tochn, tonet;
+      tonet = self.currentNetwork();
+      tochn = self.currentChannel();
+      message = self.messageBar();
+      interop.socket.emit("message", {
+        network: tonet,
+        channel: tochn,
+        message: message
+      });
+      self.addMessage({
+        network: self.currentNetwork(),
+        nickname: self.currentNickname(),
+        to: self.currentChannel(),
+        message: message
+      });
+      return self.messageBar("");
+    };
     self.initNetworks = function(data) {
       var cname, cval, network, nid, tdata, tnet, uchan, udata, uname, uval, _ref, _ref1;
       tdata = [];
@@ -35,6 +66,7 @@
       for (nid in data) {
         network = data[nid];
         tnet = {};
+        tnet.nickname = network.nickname;
         tnet.name = network.name;
         tnet.id = nid;
         tnet.chans = [];

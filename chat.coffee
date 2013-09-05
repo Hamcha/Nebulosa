@@ -21,21 +21,21 @@ ChatClient.ctcp = (server, from, to, text, type) ->
 	return
 
 ChatClient.initClient = (socket) ->
+	# Send all network and channels data (including names, if possible)
 	networks = {}
 	for i,s of ChatClient.ircs
 		networks[i] =
+			nickname: s.client.opt.nick
 			name: s.displayName
 			chans: s.client.chans
 	socket.emit "networks", networks
-	# Send all network and channels data (including names, if possible)
 	return
 
 ChatClient.sendBuffers = (socket) ->
 	# Send last N messages per channel
 	return
 
-
-eventMap =
+global.eventMap =
 	'join' 		: 'join'
 	'part' 		: 'part'
 	'message' 	: 'message'
@@ -54,5 +54,22 @@ eventMap =
 	'whois' 	: 'whois'
 	'error'		: 'error'
 	'channellist' : 'list'
+
+global.clientMap =
+	'join' 		: 'join'
+	'part' 		: 'part'
+	'message' 	: 'message'
+	'names'		: 'names'
+	'topic'		: 'topic'
+	'quit'		: 'quit'
+	'kick'		: 'kick'
+	'notice'	: 'notice'
+	'ping'		: 'ping'
+	'ctcp'		: 'ctcp'
+	'nick'		: 'nick'
+	'invite'	: 'invite'
+	'mode' 		: 'mode'
+	'whois' 	: 'whois'
+	'list' 		: 'list'
 
 module.exports = ChatClient

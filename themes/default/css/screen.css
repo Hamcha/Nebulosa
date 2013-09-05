@@ -2,6 +2,9 @@ html, body {
   height: 100%;
   overflow: hidden; }
 
+a {
+  cursor: pointer; }
+
 #chatmessages {
   position: absolute;
   top: 0;
@@ -13,19 +16,19 @@ html, body {
 
 #inputbarcont {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 170px;
+  right: 160px;
   bottom: 0; }
   #inputbarcont #inputbar {
     position: absolute;
     left: 1px;
     right: 1px;
-    bottom: 1px; }
+    bottom: 4px; }
 
 #leftbar {
   position: fixed;
   top: 41px;
-  bottom: 0;
+  bottom: 41px;
   left: 0;
   width: 130px;
   border-right: 1px solid #ddd; }
@@ -33,20 +36,23 @@ html, body {
 #centerbar {
   position: fixed;
   top: 41px;
-  bottom: 0;
+  bottom: 41px;
   left: 161px;
   right: 151px; }
-
-#centerlimit {
-  background-color: #f00; }
 
 #rightbar {
   position: fixed;
   top: 41px;
-  bottom: 0;
+  bottom: 41px;
   right: 0;
   width: 150px;
   border-left: 1px solid #ddd; }
+
+#bottombar {
+  position: fixed;
+  bottom: 0;
+  height: 40px;
+  border-top: 1px solid #ddd; }
 
 .us-list {
   position: absolute;

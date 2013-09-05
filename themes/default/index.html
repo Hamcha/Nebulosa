@@ -18,14 +18,14 @@
 		<!-- First Row (Navbar) -->
 		<div class="uk-float-left uk-width-1-1">
 			<nav class="uk-navbar" style="border-bottom: 1px solid #ddd;">
-				<a href="#" class="uk-navbar-toggle"></a>
+				<a class="uk-navbar-toggle"></a>
 				<ul class="uk-navbar-nav">
-					<li><a href="#">New server</a></li>
+					<li><a>New server</a></li>
 					<li class="uk-parent" data-uk-dropdown><a href="#">Scripts</a>
 						<div class="uk-dropdown uk-dropdown-navbar">
 							<ul class="uk-nav uk-nav-navbar">
-								<li><a href="#">New script</a></li>
-								<li><a href="#">Manage active scripts</a></li>
+								<li><a>New script</a></li>
+								<li><a>Manage active scripts</a></li>
 							</ul>
 						</div>
 					</li>
@@ -36,9 +36,9 @@
 		<div id="leftbar" class="uk-panel uk-panel-box uk-panel-box-secondary">
 			<ul id="chanlist" class="chanlist uk-list uk-list-line" data-bind="foreach: networks">
 				<li>
-					<a href="#" data-bind="text: name">Unnamed Network</a>
+					<a data-bind="text: name">Unnamed Network</a>
 					<ul class="uk-list sublist" data-bind="foreach: chans">
-						<a href="#"><li data-bind="text: key"></li></a>
+						<a><li data-bind="text: key"></li></a>
 					</ul>
 				</li>
 			</ul>
@@ -47,14 +47,29 @@
 			<ul id="chatmessages" class="uk-list uk-list-striped" data-bind="foreach: channelActivity">
 				<li><div class="username" data-bind="text: user">Nickname</div> <span data-bind="text: message">Message</span></li>
 			</ul>
-			<div id="inputbarcont" class="uk-form">
-				<input type="text" id="inputbar" />
-			</div>
 		</div>
 		<div id="rightbar" class="uk-panel">
 			<ul id="userlist" class="uk-list us-list" data-bind="foreach: channelUsers">
 				<li data-bind="text: $data"><!--<div class="symbol">@</div>-->Username</li>
 			</ul>
+		</div>
+		<!-- Third Row (Writebar n stuff) -->
+		<div class="uk-float-left uk-width-1-1" id="bottombar">
+			<nav class="uk-navbar" style="border-bottom: 1px solid #ddd;">
+				<ul class="uk-navbar-nav">
+					<li><a>Color</a></li>
+					<li><a>Style</a></li>
+				</ul>
+				<ul class="uk-navbar-nav uk-navbar-flip">
+					<li><a data-bind="click: sendMessage">Send message</a></li>
+				</ul>
+				<div id="inputbarcont" class="uk-form">
+					<form data-bind="submit: sendMessage">
+						<input type="text" id="inputbar" data-bind="value: messageBar" />
+					</form>
+				</div>
+			</nav>
+			
 		</div>
 	</div>
 </body>
