@@ -7,10 +7,11 @@ ChatClient.start = () ->
 	for i,s of config.servers
 		ircClient = Object.create null
 		# Setup basic informations
-		ircClient.name = s.name
-		ircClient.client = new irc.Client s.address, s.nickname, { channels:s.autojoin, realName:s.realname }
+		ircClient.name = i
+		ircClient.displayName = s.name
+		ircClient.client = new irc.Client s.address, s.nickname, { channels:s.autojoin, realName:s.realname, userName:"nebulosa" }
 		# Proxy all events to the EventProxy
-		proxy EventProxy, eventMap, ircClient.client, ircClient.client
+		proxy EventProxy, eventMap, ircClient.client, ircClient
 		# Put it into the list
 		ChatClient.ircs[i] = ircClient
 	return
@@ -20,7 +21,12 @@ ChatClient.ctcp = (server, from, to, text, type) ->
 	return
 
 ChatClient.initClient = (socket) ->
-	socket.emit "networks", {}
+	networks = {}
+	for i,s of ChatClient.ircs
+		networks[i] =
+			name: s.displayName
+			chans: s.client.chans
+	socket.emit "networks", networks
 	# Send all network and channels data (including names, if possible)
 	return
 

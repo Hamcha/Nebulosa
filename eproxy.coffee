@@ -6,7 +6,7 @@ EventProxy.join = (ircc,chan,nick) ->
 EventProxy.part = (ircc,chan,nick,reas) -> 
 	io.sockets.emit 'part', { network:ircc.name, channel:chan, nickname:nick, reason:reas }
 
-EventProxy.message = (ircc,nick,t,msg) -> 
+EventProxy.message = (ircc,nick,t,msg) ->
 	io.sockets.emit 'message', { network:ircc.name, nickname:nick, to:t, message:msg }
 
 EventProxy.names = (ircc,chan,nickl) -> 

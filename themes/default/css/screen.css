@@ -37,6 +37,9 @@ html, body {
   left: 161px;
   right: 151px; }
 
+#centerlimit {
+  background-color: #f00; }
+
 #rightbar {
   position: fixed;
   top: 41px;

@@ -4,8 +4,23 @@
 
   socket = io.connect('http://' + location.host);
 
+  /*
+  On Network data (Startup)
+  */
+
+
+  socket.on('networks', function(data) {
+    return window["interface"].initNetworks(data);
+  });
+
+  /*
+  On IRC Message
+  */
+
+
   socket.on('message', function(data) {
-    return console.log(data);
+    console.log(data);
+    return window["interface"].addMessage(data);
   });
 
 }).call(this);
