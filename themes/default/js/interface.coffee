@@ -29,12 +29,17 @@ InterfaceViewModel = () ->
 		msgs[data.network+data.to].push { user: data.nickname, message: data.message }
 		self.messages msgs
 
+	# Send message to server
 	self.sendMessage = () ->
+		# Get vars to avoid calling them multiple times
 		tonet = self.currentNetwork()
 		tochn = self.currentChannel()
 		message = self.messageBar()
+		# Send message to Nebulosa
 		interop.socket.emit "message", { network: tonet, channel: tochn, message: message }
-		self.addMessage { network: self.currentNetwork(), nickname: self.currentNickname(), to: self.currentChannel(), message: message }
+		# Add the message to the list (client-side stuff)
+		self.addMessage { network: tonet, nickname: self.currentNickname(), to: tochn, message: message }
+		# Empty the message bar
 		self.messageBar ""
 
 	# Get the networks and channels joined and format them so they can be loaded into Knockout

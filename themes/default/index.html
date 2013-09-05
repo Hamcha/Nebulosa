@@ -43,9 +43,12 @@
 				</li>
 			</ul>
 		</div>
-		<div id="centerbar" class="uk-panel uk-panel-box">
-			<ul id="chatmessages" class="uk-list uk-list-striped" data-bind="foreach: channelActivity">
-				<li><div class="username" data-bind="text: user">Nickname</div> <span data-bind="text: message">Message</span></li>
+		<div id="centerbar" class="uk-panel uk-panel-box uk-vertical-align">
+			<ul id="chatmessages" class="uk-list uk-list-striped uk-vertical-align-bottom" data-bind="foreach: channelActivity">
+				<li>
+					<div style="display: table-row;">
+						<div class="username" data-bind="text: user">Nickname</div> <div class="message" data-bind="text: message">Message</div>
+					</div></li>
 			</ul>
 		</div>
 		<div id="rightbar" class="uk-panel">

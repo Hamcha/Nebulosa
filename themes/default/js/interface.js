@@ -52,9 +52,9 @@
         message: message
       });
       self.addMessage({
-        network: self.currentNetwork(),
+        network: tonet,
         nickname: self.currentNickname(),
-        to: self.currentChannel(),
+        to: tochn,
         message: message
       });
       return self.messageBar("");
