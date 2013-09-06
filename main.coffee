@@ -2,10 +2,11 @@ global.config 	= require "./config"
 global.http 	= require "http"
 global.fs 		= require "fs"
 global.socketio	= require "socket.io"
+global.proxy	= require "event-proxy"
 global.connect 	= require "connect"
 global.irc		= require "irc"
 global.ircsrv	= require "./chat"
-global.proxy	= require "event-proxy"
+global.buffer   = require "./buffer"
 
 # Fallback if selected theme doesn't exist
 if not fs.existsSync "themes/"+config.webconf.theme

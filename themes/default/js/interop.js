@@ -24,6 +24,14 @@
     return window["interface"].addChannelAction("part", data);
   });
 
+  socket.on('names', function(data) {
+    return window["interface"].updateChannelInfo(data);
+  });
+
+  socket.on('topic', function(data) {
+    return window["interface"].setTopic(data);
+  });
+
   window.interop = {
     socket: socket
   };

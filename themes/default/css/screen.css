@@ -143,3 +143,18 @@ a {
   margin-right: 5px;
   text-align: center;
   font-weight: bold; }
+
+.topic {
+  position: absolute;
+  left: 220px;
+  right: 220px;
+  padding: 10px 15px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-align: center;
+  border-right: 1px solid #ccc;
+  border-left: 1px solid #ccc; }
+  .topic .author {
+    font-size: .9em;
+    color: #888; }

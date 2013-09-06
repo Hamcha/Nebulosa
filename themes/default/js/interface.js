@@ -6,25 +6,51 @@
     var self;
     self = this;
     self.networks = ko.observableArray([]);
-    self.currentNetwork = ko.observable("ponychat");
-    self.currentChannel = ko.observable("#testbass");
+    self.currentNetwork = ko.observable("");
+    self.currentChannel = ko.observable("");
     self.messageBar = ko.observable("");
     self.userlist = ko.observable({});
     self.messages = ko.observable({});
+    self.isChannel = true;
     self.channelUsers = ko.computed(function() {
       return self.userlist()[self.currentNetwork() + self.currentChannel()];
     });
     self.channelActivity = ko.computed(function() {
       return self.messages()[self.currentNetwork() + self.currentChannel()];
     });
+    self.currentTopic = ko.computed(function() {
+      var chan, curchan, curnet, net, nets, tnick, topic;
+      nets = self.networks();
+      curnet = self.currentNetwork();
+      curchan = self.currentChannel();
+      if (!(self.isChannel && nets !== [] && curnet !== "" && curchan !== "")) {
+        return false;
+      }
+      net = filterSingle(nets, function(x) {
+        return x.id === curnet;
+      });
+      chan = filterSingle(nets[net.id].chans, function(x) {
+        return x.key === curchan;
+      });
+      topic = nets[net.id].chans[chan.id].topic;
+      tnick = nets[net.id].chans[chan.id].topicBy;
+      if (topic != null) {
+        return {
+          topic: topic,
+          topicBy: tnick
+        };
+      } else {
+        return false;
+      }
+    });
     self.currentNickname = ko.computed(function() {
       var curnet, nets;
       curnet = self.currentNetwork();
-      nets = self.networks().filter(function(x) {
+      nets = filterSingle(self.networks(), function(x) {
         return x.id === curnet;
       });
-      if (nets[0] != null) {
-        return nets[0].nickname;
+      if (nets != null) {
+        return nets.elem.nickname;
       } else {
         return null;
       }
@@ -40,7 +66,8 @@
         user: data.nickname,
         message: data.message
       });
-      return self.messages(msgs);
+      self.messages(msgs);
+      return scrollBottom();
     };
     self.addNotice = function(data) {
       var curchan, curnet, msgs;
@@ -56,7 +83,8 @@
         user: data.nickname,
         message: data.message
       });
-      return self.messages(msgs);
+      self.messages(msgs);
+      return scrollBottom();
     };
     self.addChannelAction = function(type, data) {
       var indexChan, indexUser, msgs, ulist;
@@ -66,8 +94,11 @@
       }
       switch (type) {
         case "join":
+          if (data.nickname === self.currentNickname()) {
+            return;
+          }
           ulist = self.userlist();
-          ulist[self.currentNetwork() + self.currentChannel()].push(data.nickname);
+          ulist[data.network + data.channel].push(data.nickname);
           self.userlist(ulist);
           msgs[data.network + data.channel].push({
             type: "chaction",
@@ -75,8 +106,11 @@
           });
           break;
         case "part":
+          if (data.nickname === self.currentNickname()) {
+            return;
+          }
           ulist = self.userlist();
-          indexChan = self.currentNetwork() + self.currentChannel();
+          indexChan = data.network + data.channel;
           indexUser = ulist[indexChan].indexOf(data.nickname);
           if (indexUser > 0) {
             ulist[indexChan].splice(ulist[indexChan].indexOf(data.nickname), 1);
@@ -87,17 +121,20 @@
             message: data.nickname + " has left the channel."
           });
       }
-      return self.messages(msgs);
+      self.messages(msgs);
+      return scrollBottom();
     };
     self.sendMessage = function() {
-      var message, tochn, tonet;
+      var curnick, message, tochn, tonet;
       tonet = self.currentNetwork();
       tochn = self.currentChannel();
+      curnick = self.currentNickname();
       message = self.messageBar();
       interop.socket.emit("message", {
         network: tonet,
         channel: tochn,
-        message: message
+        message: message,
+        nickname: curnick
       });
       self.addMessage({
         network: tonet,
@@ -107,9 +144,46 @@
       });
       return self.messageBar("");
     };
-    self.switchTo = function(network, channel) {
+    self.switchTo = function(network, channel, isChannel) {
+      self.isChannel = isChannel;
       self.currentNetwork(network);
       return self.currentChannel(channel);
+    };
+    self.updateChannelInfo = function(data) {
+      var indexChan, uchan, ulist, uname, uval, _ref;
+      indexChan = data.network + data.channel;
+      ulist = self.userlist();
+      uchan = [];
+      _ref = data.nicks;
+      for (uname in _ref) {
+        uval = _ref[uname];
+        uchan.push(uname);
+      }
+      ulist[indexChan] = uchan;
+      return self.userlist(ulist);
+    };
+    self.setTopic = function(data) {
+      var chan, msgs, net, nets;
+      nets = self.networks();
+      net = filterSingle(nets, function(x) {
+        return x.id === data.network;
+      });
+      chan = filterSingle(nets[net.id].chans, function(x) {
+        return x.key === data.channel;
+      });
+      nets[net.id].chans[chan.id].topic = data.topic;
+      nets[net.id].chans[chan.id].topicBy = data.nickname;
+      self.networks(nets);
+      msgs = self.messages();
+      if (msgs[data.network + data.channel] == null) {
+        msgs[data.network + data.channel] = [];
+      }
+      msgs[data.network + data.channel].push({
+        type: "chaction",
+        message: data.nickname + " has set the topic to: " + data.topic
+      });
+      self.messages(msgs);
+      return scrollBottom();
     };
     self.initNetworks = function(data) {
       var cname, cval, network, nid, tdata, tnet, uchan, udata, uname, uval, _ref, _ref1;
@@ -139,6 +213,12 @@
       }
       self.networks(tdata);
       self.userlist(udata);
+      if (tdata[0] != null) {
+        self.currentNetwork(tdata[0].id);
+      }
+      if (tdata[0].chans[0] != null) {
+        self.currentChannel(tdata[0].chans[0].key);
+      }
     };
   };
 

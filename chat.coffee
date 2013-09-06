@@ -1,6 +1,7 @@
 ChatClient = Object.create null
 global.EventProxy = require("./eproxy")
 global.ClientProxy = require("./cproxy")
+global.buffers = Object.create null
 
 ChatClient.start = () ->
 	ChatClient.ircs = Object.create null
@@ -32,8 +33,16 @@ ChatClient.initClient = (socket) ->
 	return
 
 ChatClient.sendBuffers = (socket) ->
-	# Send last N messages per channel
+	for i,s of ChatClient.ircs
+		for j,c of s.client.chans when buffers[i+"."+c.key]?
+			bufItem = buffers[i+"."+c.key].get()
+			socket.emit x.type, x.data for x in bufItem
 	return
+
+ChatClient.pushBuffer = (bufferName, what, data) ->
+	if !buffers[bufferName]?
+		buffers[bufferName] = new buffer config.bufferSize
+	buffers[bufferName].push {type:what, data:data}
 
 global.eventMap =
 	'join' 		: 'join'
