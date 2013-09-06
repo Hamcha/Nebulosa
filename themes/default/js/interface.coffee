@@ -46,8 +46,22 @@ InterfaceViewModel = () ->
 		if !msgs[data.network+data.channel]?
 			msgs[data.network+data.channel] = []
 		switch type
-			when "join" then msgs[data.network+data.channel].push { type:"chaction", message: data.nickname + " has joined the channel." }
-			when "part" then msgs[data.network+data.channel].push { type:"chaction", message: data.nickname + " has left the channel." }
+			when "join"
+				# Add user to list
+				ulist = self.userlist()
+				ulist[self.currentNetwork()+self.currentChannel()].push data.nickname
+				self.userlist ulist
+				# Write join message
+				msgs[data.network+data.channel].push { type:"chaction", message: data.nickname + " has joined the channel." }
+			when "part"
+				# Delete user from list
+				ulist = self.userlist()
+				indexChan = self.currentNetwork()+self.currentChannel()
+				indexUser = ulist[indexChan].indexOf data.nickname
+				ulist[indexChan].splice (ulist[indexChan].indexOf data.nickname), 1 if indexUser > 0
+				self.userlist ulist
+				# Write part message
+				msgs[data.network+data.channel].push { type:"chaction", message: data.nickname + " has left the channel." }
 		self.messages msgs
 
 	# Send message to server
@@ -62,6 +76,10 @@ InterfaceViewModel = () ->
 		self.addMessage { network: tonet, nickname: self.currentNickname(), channel: tochn, message: message }
 		# Empty the message bar
 		self.messageBar ""
+
+	self.switchTo = (network,channel) ->
+		self.currentNetwork network
+		self.currentChannel channel
 
 	# Get the networks and channels joined and format them so they can be loaded into Knockout
 	self.initNetworks = (data) ->

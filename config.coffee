@@ -40,7 +40,7 @@ servers.ponychat =
 	nickname : "nebulosa"			 # Default nickname
 	realname : "Nebulosa IRC Client" # Real name
 	# Channels to join when connected
-	autojoin : [ "#testbass" ]
+	autojoin : [ "#testbass", "#testbass2" ]
 
 ## DON'T EDIT BELOW THIS POINT (or things will turn ugly)
 

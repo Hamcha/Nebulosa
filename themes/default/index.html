@@ -36,9 +36,19 @@
 		<div id="leftbar" class="uk-panel uk-panel-box uk-panel-box-secondary">
 			<ul id="chanlist" class="chanlist uk-list uk-list-line" data-bind="foreach: networks">
 				<li>
-					<a data-bind="text: name">Unnamed Network</a>
+					<!-- ko if: $root.currentNetwork() != id || $root.currentChannel() != ":status" -->
+					<a data-bind="text: name,click: $root.switchTo.bind($data,id,':status')">Unnamed Network</a>
+					<!-- /ko -->
+					<!-- ko if: $root.currentNetwork() == id && $root.currentChannel() == ":status" -->
+					<span class="cselected" data-bind="text: name">Unnamed Network</span>
+					<!-- /ko -->
 					<ul class="uk-list sublist" data-bind="foreach: chans">
-						<a><li data-bind="text: key"></li></a>
+						<!-- ko if:  $root.currentNetwork() != $parent.id || $root.currentChannel() != key -->
+						<a data-bind="click: $root.switchTo.bind($data,$parent.id,key)"><li data-bind="text: key"></li></a>
+						<!-- /ko -->
+						<!-- ko if: $root.currentNetwork() == $parent.id && $root.currentChannel() == key -->
+						<li class="cselected" data-bind="text: key"></li>
+						<!-- /ko -->
 					</ul>
 				</li>
 			</ul>

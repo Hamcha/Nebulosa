@@ -59,19 +59,29 @@
       return self.messages(msgs);
     };
     self.addChannelAction = function(type, data) {
-      var msgs;
+      var indexChan, indexUser, msgs, ulist;
       msgs = self.messages();
       if (msgs[data.network + data.channel] == null) {
         msgs[data.network + data.channel] = [];
       }
       switch (type) {
         case "join":
+          ulist = self.userlist();
+          ulist[self.currentNetwork() + self.currentChannel()].push(data.nickname);
+          self.userlist(ulist);
           msgs[data.network + data.channel].push({
             type: "chaction",
             message: data.nickname + " has joined the channel."
           });
           break;
         case "part":
+          ulist = self.userlist();
+          indexChan = self.currentNetwork() + self.currentChannel();
+          indexUser = ulist[indexChan].indexOf(data.nickname);
+          if (indexUser > 0) {
+            ulist[indexChan].splice(ulist[indexChan].indexOf(data.nickname), 1);
+          }
+          self.userlist(ulist);
           msgs[data.network + data.channel].push({
             type: "chaction",
             message: data.nickname + " has left the channel."
@@ -96,6 +106,10 @@
         message: message
       });
       return self.messageBar("");
+    };
+    self.switchTo = function(network, channel) {
+      self.currentNetwork(network);
+      return self.currentChannel(channel);
     };
     self.initNetworks = function(data) {
       var cname, cval, network, nid, tdata, tnet, uchan, udata, uname, uval, _ref, _ref1;
