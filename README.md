@@ -17,10 +17,7 @@ Its architecture provides:
 
 ### What's missing
 
-- Buffering of messages server-side
-- Switching to other networks/channels (currently hardcoded to ponychat#testbass)
 - Implementation of all commands (WebInterface)
 - Message customization options (bold/underline/colors)
 - Randomly colored nicknames
-- Password protected web interface (for remote servers)
-- Loading / Unloading of scripts (either Coffeescript or Javascript)
+- Script management (either Coffeescript or Javascript)
