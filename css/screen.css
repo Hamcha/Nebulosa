@@ -1,0 +1,13 @@
+body { background-color: #f3f3f3; text-align: center; font-family: "Segoe UI", sans-serif; }
+header img { border: 1px solid #eee; box-shadow: 0 0 30px #ccc; }
+h1 { margin: 0; font-size: 4em; color: #222;}
+h2 { margin: 0; font-weight: normal; color: #888; }
+
+red { color: #d05; }
+yellow { color: #da0; }
+orange { color: #e60; }
+gray, grey { color: #aaa; }
+green { color: #0a3; }
+blue { color: #05f; }
+purple, magenta { color: #d0f; }
+cyan { color: #0cf; }
