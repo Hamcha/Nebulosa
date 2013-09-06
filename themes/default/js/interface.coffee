@@ -39,7 +39,7 @@ InterfaceViewModel = () ->
 		msgs = self.messages()
 		if !msgs[data.network+data.channel]?
 			msgs[data.network+data.channel] = []
-		msgs[data.network+data.channel].push { type:"message", user: data.nickname, message: data.message }
+		msgs[data.network+data.channel].push { type:"message", user: data.nickname, message: data.message, timestamp: formatTime data.time }
 		self.messages msgs
 		scrollBottom()
 
@@ -51,7 +51,7 @@ InterfaceViewModel = () ->
 		msgs = self.messages()
 		if !msgs[curnet+curchan]?
 			msgs[curnet+curchan] = []
-		msgs[curnet+curchan].push { type:"notice", channel: data.channel, user: data.nickname, message: data.message }
+		msgs[curnet+curchan].push { type:"notice", channel: data.channel, user: data.nickname, message: data.message, timestamp: formatTime data.time }
 		self.messages msgs
 		scrollBottom()
 
@@ -68,7 +68,7 @@ InterfaceViewModel = () ->
 				ulist[data.network+data.channel].push data.nickname
 				self.userlist ulist
 				# Write join message
-				msgs[data.network+data.channel].push { type:"chaction", message: data.nickname + " has joined the channel." }
+				msgs[data.network+data.channel].push { type:"chaction", message: data.nickname + " has joined the channel.", timestamp: formatTime data.time }
 			when "part"
 				return if data.nickname is self.currentNickname()
 				# Delete user from list
@@ -78,7 +78,7 @@ InterfaceViewModel = () ->
 				ulist[indexChan].splice (ulist[indexChan].indexOf data.nickname), 1 if indexUser > 0
 				self.userlist ulist
 				# Write part message
-				msgs[data.network+data.channel].push { type:"chaction", message: data.nickname + " has left the channel." }
+				msgs[data.network+data.channel].push { type:"chaction", message: data.nickname + " has left the channel.", timestamp: formatTime data.time }
 		self.messages msgs
 		scrollBottom()
 
@@ -92,7 +92,7 @@ InterfaceViewModel = () ->
 		# Send message to Nebulosa
 		interop.socket.emit "message", { network: tonet, channel: tochn, message: message, nickname: curnick }
 		# Add the message to the list (client-side stuff)
-		self.addMessage { network: tonet, nickname: self.currentNickname(), channel: tochn, message: message }
+		self.addMessage { network: tonet, nickname: self.currentNickname(), channel: tochn, message: message, time: +new Date }
 		# Empty the message bar
 		self.messageBar ""
 
@@ -124,7 +124,7 @@ InterfaceViewModel = () ->
 		msgs = self.messages()
 		if !msgs[data.network+data.channel]?
 			msgs[data.network+data.channel] = []
-		msgs[data.network+data.channel].push { type:"chaction", message: data.nickname + " has set the topic to: " + data.topic }
+		msgs[data.network+data.channel].push { type:"chaction", message: data.nickname + " has set the topic to: " + data.topic, timestamp: formatTime data.time }
 		self.messages msgs
 		scrollBottom()
 

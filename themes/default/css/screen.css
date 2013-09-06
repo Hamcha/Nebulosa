@@ -123,19 +123,22 @@ a {
 
 .message {
   display: table-cell;
-  padding-left: 5px; }
+  padding-left: 5px;
+  padding-right: 80px; }
 
 .chaction {
   padding: 5px;
   background-color: #def;
   color: #369;
-  padding-left: 10px; }
+  padding-left: 10px;
+  padding-right: 80px; }
 
 .notice {
   padding: 5px;
   padding-left: 10px;
   background-color: #f2fae3;
-  color: #659f13; }
+  color: #659f13;
+  padding-right: 80px; }
 
 .symbol {
   display: inline-block;
@@ -158,3 +161,10 @@ a {
   .topic .author {
     font-size: .9em;
     color: #888; }
+
+.timestamp {
+  position: absolute;
+  right: 0;
+  top: 5px;
+  width: 70px;
+  opacity: .5; }

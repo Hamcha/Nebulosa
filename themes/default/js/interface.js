@@ -64,7 +64,8 @@
       msgs[data.network + data.channel].push({
         type: "message",
         user: data.nickname,
-        message: data.message
+        message: data.message,
+        timestamp: formatTime(data.time)
       });
       self.messages(msgs);
       return scrollBottom();
@@ -81,7 +82,8 @@
         type: "notice",
         channel: data.channel,
         user: data.nickname,
-        message: data.message
+        message: data.message,
+        timestamp: formatTime(data.time)
       });
       self.messages(msgs);
       return scrollBottom();
@@ -102,7 +104,8 @@
           self.userlist(ulist);
           msgs[data.network + data.channel].push({
             type: "chaction",
-            message: data.nickname + " has joined the channel."
+            message: data.nickname + " has joined the channel.",
+            timestamp: formatTime(data.time)
           });
           break;
         case "part":
@@ -118,7 +121,8 @@
           self.userlist(ulist);
           msgs[data.network + data.channel].push({
             type: "chaction",
-            message: data.nickname + " has left the channel."
+            message: data.nickname + " has left the channel.",
+            timestamp: formatTime(data.time)
           });
       }
       self.messages(msgs);
@@ -140,7 +144,8 @@
         network: tonet,
         nickname: self.currentNickname(),
         channel: tochn,
-        message: message
+        message: message,
+        time: +(new Date)
       });
       return self.messageBar("");
     };
@@ -180,7 +185,8 @@
       }
       msgs[data.network + data.channel].push({
         type: "chaction",
-        message: data.nickname + " has set the topic to: " + data.topic
+        message: data.nickname + " has set the topic to: " + data.topic,
+        timestamp: formatTime(data.time)
       });
       self.messages(msgs);
       return scrollBottom();

@@ -10,7 +10,7 @@ ClientProxy.part = (socket, data) ->
 
 ClientProxy.message = (socket, data) ->
 	return if !ircsrv.ircs[data.network]?
-	message = { network:data.network, nickname:data.nickname, channel:data.channel, message:data.message }
+	message = { network:data.network, nickname:data.nickname, channel:data.channel, message:data.message, time:new Date() }
 	ircsrv.pushBuffer data.network+"."+data.channel, "message", message
 	ircsrv.ircs[data.network].client.say data.channel, data.message
 
@@ -32,7 +32,7 @@ ClientProxy.kick = (socket, data) ->
 
 ClientProxy.notice = (socket, data) -> 
 	return if !ircsrv.ircs[data.network]?
-	message = { network:data.network, nickname:data.nickname, channel:data.channel, message:data.message }
+	message = { network:data.network, nickname:data.nickname, channel:data.channel, message:data.message, time:new Date() }
 	ircsrv.pushBuffer data.network+"."+data.channel, "notice", message
 	ircsrv.ircs[data.network].client.notice data.channel, data.message
 
@@ -42,7 +42,7 @@ ClientProxy.ping = (socket, data) ->
 
 ClientProxy.nick = (socket, data) -> 
 	return if !ircsrv.ircs[data.network]?
-	message = { network:ircc.name, oldnick:data.nickname, newnick:data.newnick, channels:data.channels }
+	message = { network:ircc.name, oldnick:data.nickname, newnick:data.newnick, channels:data.channels, time:new Date() }
 	ircsrv.pushBuffer data.network+"."+data.channel, "nick", message
 	ircsrv.ircs[data.network].client.send "NICK", data.newnick
 
