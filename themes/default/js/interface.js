@@ -32,13 +32,51 @@
     self.addMessage = function(data) {
       var msgs;
       msgs = self.messages();
-      if (msgs[data.network + data.to] == null) {
-        msgs[data.network + data.to] = [];
+      if (msgs[data.network + data.channel] == null) {
+        msgs[data.network + data.channel] = [];
       }
-      msgs[data.network + data.to].push({
+      msgs[data.network + data.channel].push({
+        type: "message",
         user: data.nickname,
         message: data.message
       });
+      return self.messages(msgs);
+    };
+    self.addNotice = function(data) {
+      var curchan, curnet, msgs;
+      curchan = self.currentChannel();
+      curnet = self.currentNetwork();
+      msgs = self.messages();
+      if (msgs[curnet + curchan] == null) {
+        msgs[curnet + curchan] = [];
+      }
+      msgs[curnet + curchan].push({
+        type: "notice",
+        channel: data.channel,
+        user: data.nickname,
+        message: data.message
+      });
+      return self.messages(msgs);
+    };
+    self.addChannelAction = function(type, data) {
+      var msgs;
+      msgs = self.messages();
+      if (msgs[data.network + data.channel] == null) {
+        msgs[data.network + data.channel] = [];
+      }
+      switch (type) {
+        case "join":
+          msgs[data.network + data.channel].push({
+            type: "chaction",
+            message: data.nickname + " has joined the channel."
+          });
+          break;
+        case "part":
+          msgs[data.network + data.channel].push({
+            type: "chaction",
+            message: data.nickname + " has left the channel."
+          });
+      }
       return self.messages(msgs);
     };
     self.sendMessage = function() {
@@ -54,7 +92,7 @@
       self.addMessage({
         network: tonet,
         nickname: self.currentNickname(),
-        to: tochn,
+        channel: tochn,
         message: message
       });
       return self.messageBar("");

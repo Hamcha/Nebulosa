@@ -4,31 +4,24 @@
 
   socket = io.connect('http://' + location.host);
 
-  /*
-  On Network data (Startup)
-  */
-
-
   socket.on('networks', function(data) {
     return window["interface"].initNetworks(data);
   });
 
-  /*
-  On Network data (Startup)
-  */
-
-
-  socket.on('self', function(data) {
-    return window["interface"].nickname(data.nickname);
-  });
-
-  /*
-  On IRC Message
-  */
-
-
   socket.on('message', function(data) {
     return window["interface"].addMessage(data);
+  });
+
+  socket.on('notice', function(data) {
+    return window["interface"].addNotice(data);
+  });
+
+  socket.on('join', function(data) {
+    return window["interface"].addChannelAction("join", data);
+  });
+
+  socket.on('part', function(data) {
+    return window["interface"].addChannelAction("part", data);
   });
 
   window.interop = {

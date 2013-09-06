@@ -46,9 +46,18 @@
 		<div id="centerbar" class="uk-panel uk-panel-box uk-vertical-align">
 			<ul id="chatmessages" class="uk-list uk-list-striped uk-vertical-align-bottom" data-bind="foreach: channelActivity">
 				<li>
-					<div style="display: table-row;">
+					<!-- ko if: type == "message" -->
+					<div style="display: table-row;" class="uk-animation-fade">
 						<div class="username" data-bind="text: user">Nickname</div> <div class="message" data-bind="text: message">Message</div>
-					</div></li>
+					</div>
+					<!-- /ko -->
+					<!-- ko if: type == "chaction" -->
+					<div class="chaction uk-animation-fade" data-bind="text: message">Message</div>
+					<!-- /ko -->
+					<!-- ko if: type == "notice" -->
+					<div class="notice uk-animation-fade">NOTICE (<b data-bind="text: user">User</b> &#8594; <b data-bind="text: channel">Chan</b>) : <span data-bind="text: message">Message</span></div>
+					<!-- /ko -->
+				</li>
 			</ul>
 		</div>
 		<div id="rightbar" class="uk-panel">

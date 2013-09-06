@@ -24,9 +24,30 @@ InterfaceViewModel = () ->
 	# Add message to list
 	self.addMessage = (data) ->
 		msgs = self.messages()
-		if !msgs[data.network+data.to]?
-			msgs[data.network+data.to] = []
-		msgs[data.network+data.to].push { user: data.nickname, message: data.message }
+		if !msgs[data.network+data.channel]?
+			msgs[data.network+data.channel] = []
+		msgs[data.network+data.channel].push { type:"message", user: data.nickname, message: data.message }
+		self.messages msgs
+
+	# Add notice to list
+	self.addNotice = (data) ->
+		# Stick notices to active channel
+		curchan = self.currentChannel()
+		curnet = self.currentNetwork()
+		msgs = self.messages()
+		if !msgs[curnet+curchan]?
+			msgs[curnet+curchan] = []
+		msgs[curnet+curchan].push { type:"notice", channel: data.channel, user: data.nickname, message: data.message }
+		self.messages msgs
+
+	# Add channel action to list
+	self.addChannelAction = (type, data) ->
+		msgs = self.messages()
+		if !msgs[data.network+data.channel]?
+			msgs[data.network+data.channel] = []
+		switch type
+			when "join" then msgs[data.network+data.channel].push { type:"chaction", message: data.nickname + " has joined the channel." }
+			when "part" then msgs[data.network+data.channel].push { type:"chaction", message: data.nickname + " has left the channel." }
 		self.messages msgs
 
 	# Send message to server
@@ -38,7 +59,7 @@ InterfaceViewModel = () ->
 		# Send message to Nebulosa
 		interop.socket.emit "message", { network: tonet, channel: tochn, message: message }
 		# Add the message to the list (client-side stuff)
-		self.addMessage { network: tonet, nickname: self.currentNickname(), to: tochn, message: message }
+		self.addMessage { network: tonet, nickname: self.currentNickname(), channel: tochn, message: message }
 		# Empty the message bar
 		self.messageBar ""
 

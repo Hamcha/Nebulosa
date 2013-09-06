@@ -14,3 +14,12 @@ Its architecture provides:
 - Remote access from any compatible device.. just host Nebulosa on a server and connect to it.
   - As such, Nebulosa can act as a BNC
 - Coffeescript and Javascript "scripts" enable for automation and new features (kinda like mIRC "remotes")
+
+### What's missing
+
+- Switching to other networks/channels (currently hardcoded to ponychat#testbass)
+- Implementation of all commands (WebInterface)
+- Message customization options (bold/underline/colors)
+- Randomly colored nicknames
+- Password protected web interface (for remote servers)
+- Loading / Unloading of scripts (either Coffeescript or Javascript)

@@ -6,8 +6,8 @@ EventProxy.join = (ircc,chan,nick) ->
 EventProxy.part = (ircc,chan,nick,reas) -> 
 	io.sockets.emit 'part', { network:ircc.name, channel:chan, nickname:nick, reason:reas }
 
-EventProxy.message = (ircc,nick,t,msg) ->
-	io.sockets.emit 'message', { network:ircc.name, nickname:nick, to:t, message:msg }
+EventProxy.message = (ircc,nick,chan,msg) ->
+	io.sockets.emit 'message', { network:ircc.name, nickname:nick, channel:chan, message:msg }
 
 EventProxy.names = (ircc,chan,nickl) -> 
 	io.sockets.emit 'names', { network:ircc.name, channel:chan, nicks:nickl }
@@ -24,8 +24,8 @@ EventProxy.kick = (ircc,chan,nick,b,reas) ->
 EventProxy.kill = (ircc,nick,reas,chan) -> 
 	io.sockets.emit 'kill', { network:ircc.name, channels:chan, nickname:nick, reason:reas }
 
-EventProxy.notice = (ircc,nick,to,msg) -> 
-	io.sockets.emit 'notice', { network:ircc.name, nickname:nick, to:to, message:msg }
+EventProxy.notice = (ircc,nick,chan,msg) -> 
+	io.sockets.emit 'notice', { network:ircc.name, nickname:nick, channel:chan, message:msg }
 
 EventProxy.ping = (ircc,s) -> 
 	io.sockets.emit 'ping', { network:ircc.name, server:s }
