@@ -15,10 +15,11 @@ general =
 webserver = 
 	bindport : 8033 		# Which port to bind
 	localhostonly : false 	# Set true only if you want to disable remote access
+	username : "someone"	# Username, read below for more information
 	password : "something"  # Password, if you have remote access enabled
-							# it will prevent other people from accessing
-							# your IRC session
-	theme : "default"		# Choose theme for the interface
+							# it will prevent other people from accessing your IRC session
+							# If you want to disable it put a blank string ("") on both
+	theme : "default"		# Theme for the web interface
 
 # Servers configuration
 

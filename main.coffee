@@ -14,7 +14,12 @@ if not fs.existsSync "themes/"+config.webconf.theme
 	config.webconf.theme = "default"
 
 # Setup static directory serving
-web = connect().use connect.static "themes/"+config.webconf.theme
+if config.webconf.username is "" or config.webconf.password is ""
+	web = connect().use connect.static "themes/"+config.webconf.theme
+else
+	#Use authentication if enabled
+	web = connect().use connect.basicAuth (user, pass) -> user == config.webconf.username and pass == config.webconf.password
+	web.use connect.static "themes/"+config.webconf.theme
 
 # Create webserver and bind port
 wsrv = http.createServer web
