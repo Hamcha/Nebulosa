@@ -12,6 +12,7 @@
     self.userlist = ko.observable({});
     self.messages = ko.observable({});
     self.isChannel = true;
+    self.bufferMode = false;
     self.channelUsers = ko.computed(function() {
       return self.userlist()[self.currentNetwork() + self.currentChannel()];
     });
@@ -55,14 +56,33 @@
         return null;
       }
     });
+    self.netNickname = function(network) {
+      var curnet, nets;
+      curnet = self.currentNetwork();
+      nets = filterSingle(self.networks(), function(x) {
+        return x.id === network;
+      });
+      if (nets != null) {
+        return nets.elem.nickname;
+      } else {
+        return null;
+      }
+    };
     self.addMessage = function(data) {
-      var msgs;
+      var m, msgs, omitnick;
       msgs = self.messages();
       if (msgs[data.network + data.channel] == null) {
         msgs[data.network + data.channel] = [];
       }
+      m = msgs[data.network + data.channel];
+      if (m[m.length - 1] != null) {
+        if (m[m.length - 1].user === data.nickname) {
+          omitnick = true;
+        }
+      }
       msgs[data.network + data.channel].push({
         type: "message",
+        shownick: omitnick == null,
         user: data.nickname,
         message: data.message,
         timestamp: formatTime(data.time)
@@ -89,28 +109,53 @@
       return scrollBottom();
     };
     self.addChannelAction = function(type, data) {
-      var indexChan, indexUser, msgs, ulist;
+      var chan, indexChan, indexUser, msgs, net, nets, ulist;
       msgs = self.messages();
       if (msgs[data.network + data.channel] == null) {
         msgs[data.network + data.channel] = [];
       }
       switch (type) {
         case "join":
-          if (data.nickname === self.currentNickname()) {
+          if (data.nickname === self.netNickname(data.network)) {
+            interop.socket.emit("chaninfo", {
+              network: data.network,
+              channel: data.channel
+            });
             return;
           }
-          ulist = self.userlist();
-          ulist[data.network + data.channel].push(data.nickname);
-          self.userlist(ulist);
           msgs[data.network + data.channel].push({
             type: "chaction",
             message: data.nickname + " has joined the channel.",
             timestamp: formatTime(data.time)
           });
+          if (self.bufferMode) {
+            break;
+          }
+          ulist = self.userlist();
+          ulist[data.network + data.channel].push(data.nickname);
+          self.userlist(ulist);
           break;
         case "part":
-          if (data.nickname === self.currentNickname()) {
+          if (data.nickname === self.netNickname(data.network)) {
+            self.switchTo(data.network, ":status", false);
+            nets = self.networks();
+            net = filterSingle(nets, function(x) {
+              return x.id === data.network;
+            });
+            chan = filterSingle(nets[net.id].chans, function(x) {
+              return x.key === data.channel;
+            });
+            nets[net.id].chans.splice(chan, 1);
+            self.networks(nets);
             return;
+          }
+          msgs[data.network + data.channel].push({
+            type: "chaction",
+            message: data.nickname + " has left the channel.",
+            timestamp: formatTime(data.time)
+          });
+          if (self.bufferMode) {
+            break;
           }
           ulist = self.userlist();
           indexChan = data.network + data.channel;
@@ -119,34 +164,56 @@
             ulist[indexChan].splice(ulist[indexChan].indexOf(data.nickname), 1);
           }
           self.userlist(ulist);
-          msgs[data.network + data.channel].push({
-            type: "chaction",
-            message: data.nickname + " has left the channel.",
-            timestamp: formatTime(data.time)
-          });
       }
       self.messages(msgs);
       return scrollBottom();
     };
+    self.addError = function(message) {
+      var curchan, curnet, msgs;
+      curchan = self.currentChannel();
+      curnet = self.currentNetwork();
+      msgs = self.messages();
+      if (msgs[curnet + curchan] == null) {
+        msgs[curnet + curchan] = [];
+      }
+      msgs[curnet + curchan].push({
+        type: "error",
+        user: "",
+        message: message
+      });
+      self.messages(msgs);
+      return scrollBottom();
+    };
     self.sendMessage = function() {
-      var curnick, message, tochn, tonet;
+      var action, curnick, message, parts, tochn, tonet;
       tonet = self.currentNetwork();
       tochn = self.currentChannel();
       curnick = self.currentNickname();
       message = self.messageBar();
-      interop.socket.emit("message", {
-        network: tonet,
-        channel: tochn,
-        message: message,
-        nickname: curnick
-      });
-      self.addMessage({
-        network: tonet,
-        nickname: self.currentNickname(),
-        channel: tochn,
-        message: message,
-        time: +(new Date)
-      });
+      if (message[0] === "/" && (message[1] != null) && message[1] !== "/") {
+        parts = message.substring(1).split(" ");
+        action = parts.splice(0, 1);
+        if (interop.command[action] == null) {
+          self.addError("Unsupported command (" + action + ")");
+        } else {
+          interop.command[action](tonet, tochn, curnick, parts);
+        }
+      } else {
+        message = message.replace(/^\/\//, "/");
+        interop.socket.emit("message", {
+          network: tonet,
+          channel: tochn,
+          message: message,
+          nickname: curnick
+        });
+        self.addMessage({
+          network: tonet,
+          nickname: self.currentNickname(),
+          channel: tochn,
+          message: message,
+          time: +(new Date)
+        });
+      }
       return self.messageBar("");
     };
     self.switchTo = function(network, channel, isChannel) {
@@ -155,6 +222,27 @@
       return self.currentChannel(channel);
     };
     self.updateChannelInfo = function(data) {
+      var chan, net, nets;
+      nets = self.networks();
+      net = filterSingle(self.networks(), function(x) {
+        return x.id === data.network;
+      });
+      chan = filterSingle(nets[net.id].chans, function(x) {
+        return x.key === data.channeldata.key;
+      });
+      self.updateChannelUsers({
+        network: data.network,
+        channel: data.channeldata.key,
+        nicks: data.channeldata.users
+      });
+      if (chan != null) {
+        nets[net.id].chans[chan.id] = data.channeldata;
+      } else {
+        nets[net.id].chans.push(data.channeldata);
+      }
+      return self.networks(nets);
+    };
+    self.updateChannelUsers = function(data) {
       var indexChan, uchan, ulist, uname, uval, _ref;
       indexChan = data.network + data.channel;
       ulist = self.userlist();

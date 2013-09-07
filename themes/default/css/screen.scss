@@ -39,13 +39,13 @@ a { cursor: pointer; }
 
 .username { 
 	display: table-cell; background-color: #e3e3e3; width: 100px; height:22px;
-	text-align: right; text-overflow: ellipsis; overflow: hidden;
-	white-space: nowrap; padding: 5px; margin: -5px 4px -12px -4px; 
+	text-align: right; white-space: nowrap; padding: 5px; margin: -5px 4px -12px -4px; 
 	border-right: 5px solid #e3e3e3;
 }
 .message { display: table-cell; padding-left: 5px; padding-right: 80px;}
 .chaction {	padding: 5px; background-color: #def; color: #369; padding-left: 10px; padding-right: 80px;}
 .notice { padding: 5px; padding-left: 10px; background-color: #f2fae3; color: #659f13; padding-right: 80px;}
+.error { padding: 5px; padding-left: 10px; background-color: #fee; color: #d53; padding-right: 80px;}
 
 .symbol { display: inline-block; width: 13px; margin-right: 5px; text-align: center; font-weight: bold; }
 .topic { 

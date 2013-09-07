@@ -33,11 +33,18 @@ ChatClient.initClient = (socket) ->
 	return
 
 ChatClient.sendBuffers = (socket) ->
+	# Activate buffer mode (special flag)
+	socket.emit "buffers", true
 	for i,s of ChatClient.ircs
 		for j,c of s.client.chans when buffers[i+"."+c.key]?
 			bufItem = buffers[i+"."+c.key].get()
 			socket.emit x.type, x.data for x in bufItem
+	# Disable buffer mode
+	socket.emit "buffers", false
 	return
+
+ChatClient.chanInfo = (net, chan) ->
+	return if ChatClient.ircs[net].client.chans? then ChatClient.ircs[net].client.chans[chan] else undefined
 
 ChatClient.pushBuffer = (bufferName, what, data) ->
 	if !buffers[bufferName]?
@@ -80,5 +87,7 @@ global.clientMap =
 	'mode' 		: 'mode'
 	'whois' 	: 'whois'
 	'list' 		: 'list'
+	'chaninfo'	: 'chaninfo'
+	'netinfo'	: 'netinfo'
 
 module.exports = ChatClient

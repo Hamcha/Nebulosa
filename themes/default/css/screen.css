@@ -114,8 +114,6 @@ a {
   width: 100px;
   height: 22px;
   text-align: right;
-  text-overflow: ellipsis;
-  overflow: hidden;
   white-space: nowrap;
   padding: 5px;
   margin: -5px 4px -12px -4px;
@@ -138,6 +136,13 @@ a {
   padding-left: 10px;
   background-color: #f2fae3;
   color: #659f13;
+  padding-right: 80px; }
+
+.error {
+  padding: 5px;
+  padding-left: 10px;
+  background-color: #fee;
+  color: #d53;
   padding-right: 80px; }
 
 .symbol {
