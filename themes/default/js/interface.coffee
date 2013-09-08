@@ -2,7 +2,7 @@ InterfaceViewModel = () ->
 	self = this
 
 	# Network and channel list
-	self.networks = ko.observableArray []
+	self.networks = ko.observable {}
 	self.currentNetwork = ko.observable ""
 	self.currentChannel = ko.observable ""
 	self.messageBar = ko.observable ""
@@ -10,6 +10,28 @@ InterfaceViewModel = () ->
 	self.messages = ko.observable {}
 	self.isChannel = true
 	self.bufferMode = false
+
+	self.networkList = ko.computed () ->
+		tdata = []
+		udata = {}
+		# Put networks on array structure
+		for nid,network of self.networks()
+			tnet = {}
+			tnet.nickname = network.nickname
+			tnet.name = network.name
+			tnet.id = nid
+			tnet.chans = []
+			# Put chans on array structure
+			for cname, cval of network.chans
+				cval.id = cname
+				tnet.chans.push cval
+				# Prepare userlist
+				uchan = []
+				for uname,uval of cval.users
+					uchan.push uname
+				udata[tnet.id+cname] = uchan
+			tdata.push tnet
+		return tdata
 
 	# Get the user list for the active channel
 	self.channelUsers = ko.computed () -> self.userlist()[self.currentNetwork()+self.currentChannel()]
@@ -23,23 +45,21 @@ InterfaceViewModel = () ->
 		curnet = self.currentNetwork()
 		curchan = self.currentChannel()
 		return false unless self.isChannel and nets isnt [] and curnet isnt "" and curchan isnt ""
-		net = filterSingle nets, (x) -> x.id == curnet
-		chan = filterSingle nets[net.id].chans, (x) -> x.key == curchan
-		topic = nets[net.id].chans[chan.id].topic
-		tnick = nets[net.id].chans[chan.id].topicBy
+		topic = nets[curnet].chans[curchan].topic
+		tnick = nets[curnet].chans[curchan].topicBy
 		return if topic? then {topic:topic, topicBy:tnick} else false
 
 	# Get the nickname for the active network
 	self.currentNickname = ko.computed () -> 
 		curnet = self.currentNetwork()
-		nets = filterSingle self.networks(), (x) -> x.id == curnet
-		return if nets? then nets.elem.nickname else null
+		nets = self.networks()[curnet]
+		return if nets? then nets.nickname else null
 
 	# Get the nickname for the active network
 	self.netNickname = (network) -> 
 		curnet = self.currentNetwork()
-		nets = filterSingle self.networks(), (x) -> x.id == network
-		return if nets? then nets.elem.nickname else null
+		nets = self.networks()[curnet]
+		return if nets? then nets.nickname else null
 
 	# Add message to list
 	self.addMessage = (data) ->
@@ -75,7 +95,7 @@ InterfaceViewModel = () ->
 			msgs[data.network+data.channel] = []
 		switch type
 			when "join"
-				if data.nickname == self.netNickname data.network
+				if !self.bufferMode and data.nickname == self.netNickname data.network
 					interop.socket.emit "chaninfo", {network:data.network,channel:data.channel}
 					return
 				# Write join message
@@ -92,10 +112,8 @@ InterfaceViewModel = () ->
 					self.switchTo data.network, ":status", false
 					# Get the channel to remove
 					nets = self.networks()
-					net = filterSingle nets, (x) -> x.id == data.network
-					chan = filterSingle nets[net.id].chans, (x) -> x.key == data.channel
 					# Remove channel from list
-					nets[net.id].chans.splice chan, 1
+					delete nets[data.network].chans[data.channel]
 					self.networks nets
 					return
 				# Write part message
@@ -157,18 +175,14 @@ InterfaceViewModel = () ->
 	# Update channel info
 	self.updateChannelInfo = (data) ->
 		nets = self.networks()
-		# Find network and channel
-		net  = filterSingle self.networks(), (x) -> x.id == data.network
-		chan = filterSingle nets[net.id].chans, (x) -> x.key == data.channeldata.key
 		# Update userlist
 		self.updateChannelUsers { network: data.network, channel: data.channeldata.key, nicks: data.channeldata.users }
 		# Create or replace channel data
-		if chan?
-			nets[net.id].chans[chan.id] = data.channeldata
-		else
-			nets[net.id].chans.push data.channeldata
+		nets[data.network].chans[data.channeldata.key] = data.channeldata
 		# Update network/channel list
 		self.networks nets
+		self.currentNetwork data.network
+		self.currentChannel data.channeldata.key
 
 	# Update channel users (userlists)
 	self.updateChannelUsers = (data) ->
@@ -183,10 +197,8 @@ InterfaceViewModel = () ->
 	# Set new topic
 	self.setTopic = (data) ->
 		nets = self.networks()
-		net = filterSingle nets, (x) -> x.id == data.network
-		chan = filterSingle nets[net.id].chans, (x) -> x.key == data.channel
-		nets[net.id].chans[chan.id].topic = data.topic
-		nets[net.id].chans[chan.id].topicBy = data.nickname
+		nets[data.network].chans[data.channel].topic = data.topic
+		nets[data.network].chans[data.channel].topicBy = data.nickname
 		self.networks nets
 		# Create message with topic change
 		msgs = self.messages()
@@ -198,29 +210,13 @@ InterfaceViewModel = () ->
 
 	# Get the networks and channels joined and format them so they can be loaded into Knockout
 	self.initNetworks = (data) ->
-		tdata = []
-		udata = {}
-		# Put networks on array structure
+		self.networks data
 		for nid,network of data
-			tnet = {}
-			tnet.nickname = network.nickname
-			tnet.name = network.name
-			tnet.id = nid
-			tnet.chans = []
-			# Put chans on array structure
 			for cname, cval of network.chans
-				cval.id = cname
-				tnet.chans.push cval
-				# Prepare userlist
-				uchan = []
-				for uname,uval of cval.users
-					uchan.push uname
-				udata[tnet.id+cname] = uchan
-			tdata.push tnet
-		self.networks tdata
-		self.userlist udata
-		self.currentNetwork tdata[0].id if tdata[0]?
-		self.currentChannel tdata[0].chans[0].key if tdata[0].chans[0]?
+				self.updateChannelUsers { network: nid, channel: cname, nicks: cval.users }
+		nets = self.networkList()
+		self.currentNetwork nets[0].id if nets[0]?
+		self.currentChannel nets[0].chans[0].key if nets[0].chans[0]?
 		return
 	return
 

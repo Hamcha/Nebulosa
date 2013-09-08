@@ -40,7 +40,7 @@
 		</div>
 		<!-- Second Row (Channels / Chat View / User list) -->
 		<div id="leftbar" class="uk-panel uk-panel-box uk-panel-box-secondary">
-			<ul id="chanlist" class="chanlist uk-list uk-list-line" data-bind="foreach: networks">
+			<ul id="chanlist" class="chanlist uk-list uk-list-line" data-bind="foreach: networkList">
 				<li>
 					<!-- ko if: $root.currentNetwork() != id || $root.currentChannel() != ":status" -->
 					<a data-bind="text: name,click: $root.switchTo.bind($data,id,':status', false)">Unnamed Network</a>
