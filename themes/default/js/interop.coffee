@@ -8,6 +8,8 @@ socket.on 'message', (data) -> window.interface.addMessage data
 
 socket.on 'notice', (data) -> window.interface.addNotice data
 
+socket.on 'whois', (data) -> window.interface.addWhois data
+
 socket.on 'join', (data) -> window.interface.addChannelAction "join", data
 
 socket.on 'part', (data) -> window.interface.addChannelAction "part", data
@@ -47,6 +49,10 @@ command.kick = (net,chan,nick,args) ->
 	return false unless args[1]?
 	reas = ifval args[2], args[1]
 	socket.emit "kick", { network: net, nickname: nick, channel: args[0], nick:args[1], message:reas }
+
+command.whois = (net,chan,nick,args) ->
+	return false unless args[0]?
+	socket.emit "whois", { network: net, nickname: args[0] }
 
 window.interop =
 	socket : socket

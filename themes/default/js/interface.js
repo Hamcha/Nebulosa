@@ -261,6 +261,27 @@
       self.messages(msgs);
       return scrollBottom();
     };
+    self.addWhois = function(data) {
+      var curchan, curnet, msgs, ninfo;
+      curchan = self.currentChannel();
+      curnet = self.currentNetwork();
+      msgs = self.messages();
+      if (msgs[curnet + curchan] == null) {
+        msgs[curnet + curchan] = [];
+      }
+      ninfo = ["<b>" + data.info.nick + "</b> is " + data.info.realname + " (" + data.info.user + "@" + data.info.host + ")", "&nbsp;&nbsp;&nbsp;&nbsp;is on <b>" + (data.info.channels.join(", ")) + "</b>", "&nbsp;&nbsp;&nbsp;&nbsp;is on " + data.info.server + " (" + data.info.serverinfo + ")"];
+      if (data.info.idle != null) {
+        ninfo.push("&nbsp;&nbsp;&nbsp;&nbsp;has been idle " + toTimeStr(data.info.idle));
+      }
+      msgs[curnet + curchan].push({
+        type: "whois",
+        user: "",
+        nickname: data.info.nick,
+        info: ninfo
+      });
+      self.messages(msgs);
+      return scrollBottom();
+    };
     self.sendMessage = function() {
       var action, curnick, message, parts, tochn, tonet;
       tonet = self.currentNetwork();

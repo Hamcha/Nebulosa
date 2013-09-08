@@ -90,6 +90,14 @@
 						<b>ERROR : <span data-bind="text: message">Message</span></b>
 					</div>
 					<!-- /ko -->
+					<!-- ko if: type == "whois" -->
+					<div class="whoiscont uk-animation-fade">
+						<b>Whois on <span data-bind="text: nickname">Nickname</span></b>
+						<ul data-bind="foreach: info">
+							<li><span data-bind="html: $data"></span></li>
+						</ul>
+					</div>
+					<!-- /ko -->
 				</li>
 			</ul>
 		</div>

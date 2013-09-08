@@ -1,6 +1,10 @@
 window.filterSingle = (array, func) -> return {id:i,elem:x} for x,i in array when func x
+
 window.ifval = (val, def) -> return if val? then val else def
+
 window.scrollBottom = () -> $("#centerbar").animate { scrollTop: $("#centerbar").height() }, "fast"
+
+window.toTimeStr = (time) -> time + " seconds"
 
 window.formatTime = (date) -> 
 	time = new Date(date)

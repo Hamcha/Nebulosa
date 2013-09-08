@@ -20,6 +20,10 @@
     return window["interface"].addNotice(data);
   });
 
+  socket.on('whois', function(data) {
+    return window["interface"].addWhois(data);
+  });
+
   socket.on('join', function(data) {
     return window["interface"].addChannelAction("join", data);
   });
@@ -103,6 +107,16 @@
       channel: args[0],
       nick: args[1],
       message: reas
+    });
+  };
+
+  command.whois = function(net, chan, nick, args) {
+    if (args[0] == null) {
+      return false;
+    }
+    return socket.emit("whois", {
+      network: net,
+      nickname: args[0]
     });
   };
 

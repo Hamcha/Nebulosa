@@ -27,6 +27,10 @@
     }, "fast");
   };
 
+  window.toTimeStr = function(time) {
+    return time + " seconds";
+  };
+
   window.formatTime = function(date) {
     var time;
     time = new Date(date);

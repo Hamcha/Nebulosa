@@ -145,6 +145,11 @@ a {
   color: #d53;
   padding-right: 80px; }
 
+.whoiscont {
+  padding: 5px;
+  padding-left: 10px;
+  line-height: 1.5em; }
+
 .symbol {
   display: inline-block;
   width: 13px;

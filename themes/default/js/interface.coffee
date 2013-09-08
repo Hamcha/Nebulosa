@@ -177,6 +177,24 @@ InterfaceViewModel = () ->
 		self.messages msgs
 		scrollBottom()
 
+	# Add message to list
+	self.addWhois = (data) ->
+		curchan = self.currentChannel()
+		curnet = self.currentNetwork()
+		msgs = self.messages()
+		if !msgs[curnet+curchan]?
+			msgs[curnet+curchan] = []
+		# Beautify whois data
+		ninfo = [
+			"<b>" + data.info.nick + "</b> is " + data.info.realname + " (" + data.info.user + "@" + data.info.host + ")",
+			"&nbsp;&nbsp;&nbsp;&nbsp;is on <b>" + (data.info.channels.join ", ") + "</b>",
+			"&nbsp;&nbsp;&nbsp;&nbsp;is on " + data.info.server + " (" + data.info.serverinfo + ")"
+		]
+		ninfo.push "&nbsp;&nbsp;&nbsp;&nbsp;has been idle " + toTimeStr data.info.idle if data.info.idle?
+		msgs[curnet+curchan].push { type:"whois", user:"", nickname:data.info.nick, info:ninfo }
+		self.messages msgs
+		scrollBottom()
+
 	# Send message to server
 	self.sendMessage = () ->
 		# Get vars to avoid calling them multiple times
