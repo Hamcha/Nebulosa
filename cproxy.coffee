@@ -22,9 +22,20 @@ ClientProxy.topic = (socket, data) ->
 	return unless ircsrv.ircs[data.network]?
 	ircsrv.ircs[data.network].client.send "TOPIC", data.channel, data.topic
 
-ClientProxy.quit = (socket, data) -> 
-	return unless ircsrv.ircs[data.network]?
+ClientProxy.quitirc = (socket, data) -> 
+	return unless ircsrv.ircs[data.network]? and ircsrv.ircs[data.network].connected
 	ircsrv.ircs[data.network].client.disconnect data.message
+	ircsrv.ircs[data.network].connected = false
+	socket.emit "disconnected", { network: data.network }
+
+ClientProxy.quit = (socket, data) -> 
+	# When the client exits the chat
+	# TODO: Go away or something
+	return
+
+ClientProxy.connect = (socket, data) -> 
+	return unless ircsrv.ircs[data.network]? and !ircsrv.ircs[data.network].connected
+	ircsrv.ircs[data.network].client.connect()
 
 ClientProxy.kick = (socket, data) -> 
 	return unless ircsrv.ircs[data.network]?
@@ -72,5 +83,9 @@ ClientProxy.chaninfo = (socket, data) ->
 ClientProxy.netinfo = (socket, data) ->
 	return unless ircsrv.ircs[data.network]?
 	ircsrv.initClient socket
+
+ClientProxy.raw = (socket, data) ->
+	return unless ircsrv.ircs[data.network]?
+	ircsrv.ircs[data.network].client.send.apply null, data.args
 
 module.exports = ClientProxy

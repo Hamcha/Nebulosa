@@ -44,6 +44,14 @@
     return window["interface"].addChannelAction("nick", data);
   });
 
+  socket.on('quit', function(data) {
+    return window["interface"].addChannelAction("quit", data);
+  });
+
+  socket.on('disconnected', function(data) {
+    return window["interface"].addChannelAction("disconnected", data);
+  });
+
   socket.on('names', function(data) {
     return window["interface"].updateChannelUsers(data);
   });
@@ -117,6 +125,21 @@
     return socket.emit("whois", {
       network: net,
       nickname: args[0]
+    });
+  };
+
+  command.quit = function(net, chan, nick, args) {
+    var quitmsg;
+    quitmsg = ifval(args[0], "Nebulosa IRC Client");
+    return socket.emit("quitirc", {
+      network: net,
+      message: quitmsg
+    });
+  };
+
+  command.connect = function(net, chan, nick, args) {
+    return socket.emit("connect", {
+      network: net
     });
   };
 

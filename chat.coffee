@@ -10,6 +10,7 @@ ChatClient.start = () ->
 		# Setup basic informations
 		ircClient.name = i
 		ircClient.displayName = s.name
+		ircClient.connected = false
 		ircClient.client = new irc.Client s.address, s.nickname, { channels:s.autojoin, realName:s.realname, userName:"nebulosa" }
 		# Proxy all events to the EventProxy
 		proxy EventProxy, eventMap, ircClient.client, ircClient
@@ -69,6 +70,7 @@ global.eventMap =
 	'-mode' 	: 'modem'
 	'whois' 	: 'whois'
 	'error'		: 'error'
+	'registered':'registered'
 	'channellist' : 'list'
 
 global.clientMap =
@@ -77,7 +79,7 @@ global.clientMap =
 	'message' 	: 'message'
 	'names'		: 'names'
 	'topic'		: 'topic'
-	'quit'		: 'quit'
+	'quitirc'	: 'quitirc'
 	'kick'		: 'kick'
 	'notice'	: 'notice'
 	'ping'		: 'ping'
@@ -89,5 +91,9 @@ global.clientMap =
 	'list' 		: 'list'
 	'chaninfo'	: 'chaninfo'
 	'netinfo'	: 'netinfo'
+	'raw'		: 'raw'
+	'disconnect': 'quit'
+	'connect'	: 'connect'
+	'quit'		: 'quit'
 
 module.exports = ChatClient

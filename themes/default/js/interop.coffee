@@ -20,6 +20,10 @@ socket.on 'mode', (data) -> window.interface.addChannelAction "mode", data
 
 socket.on 'nick', (data) -> window.interface.addChannelAction "nick", data
 
+socket.on 'quit', (data) -> window.interface.addChannelAction "quit", data
+
+socket.on 'disconnected', (data) -> window.interface.addChannelAction "disconnected", data
+
 socket.on 'names', (data) -> window.interface.updateChannelUsers data
 
 socket.on 'chaninfo', (data) -> window.interface.updateChannelInfo data
@@ -53,6 +57,13 @@ command.kick = (net,chan,nick,args) ->
 command.whois = (net,chan,nick,args) ->
 	return false unless args[0]?
 	socket.emit "whois", { network: net, nickname: args[0] }
+
+command.quit = (net,chan,nick,args) ->
+	quitmsg = ifval args[0], "Nebulosa IRC Client"
+	socket.emit "quitirc", { network: net, message: quitmsg }
+
+command.connect = (net,chan,nick,args) ->
+	socket.emit "connect", { network: net }
 
 window.interop =
 	socket : socket

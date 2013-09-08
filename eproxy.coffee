@@ -25,8 +25,8 @@ EventProxy.topic = (ircc,chan,txt,nick) ->
 
 EventProxy.quit = (ircc,nick,reas,chan) -> 
 	message = { network:ircc.name, channels:chan, nickname:nick, reason:reas, time:new Date() }
-	ircsrv.pushBuffer ircc.name+"."+chan, "quit", message
 	io.sockets.emit 'quit', message
+	ircsrv.pushBuffer ircc.name+"."+ch, "quit", { network:ircc.name, channels:ch, nickname:nick, reason:reas, time:new Date() } for ch in chan
 
 EventProxy.kick = (ircc,chan,nick,b,reas) -> 
 	message = { network:ircc.name, channel:chan, nickname:nick, by:b, reason:reas, time:new Date() }
@@ -75,5 +75,8 @@ EventProxy.list = (ircc,clist) ->
 EventProxy.ctcp = (ircc,f,t,m,p) -> 
 	ircsrv.ctcp(ircc,f,t,m,p)
 	io.sockets.emit 'ctcp', { network:ircc.name, from:f, to:t, text:m, type:p }
+
+EventProxy.registered = (ircc) -> 
+	ircc.connected = true
 
 module.exports = EventProxy

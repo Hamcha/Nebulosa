@@ -106,7 +106,7 @@ InterfaceViewModel = () ->
 				ulist = self.userlist()
 				ulist[data.network+data.channel].push data.nickname
 				self.userlist ulist
-			when "part","kick"
+			when "part","kick","quit"
 				if !self.bufferMode and data.nickname == self.netNickname data.network
 					# Select another channel if we're on the parted one
 					self.switchTo data.network, ":status", false
@@ -118,22 +118,39 @@ InterfaceViewModel = () ->
 					return
 				# Write part/kick message
 				data.reason = ifval data.reason, ""
-				if type is "part"
-					if !msgs[data.network+data.channel]?
-						msgs[data.network+data.channel] = []
-					msgs[data.network+data.channel].push { type:"chaction", message: "<b>" + data.nickname + "</b>  has left the channel (" + data.reason + ")", timestamp: formatTime data.time }
-				else
-					if !msgs[data.network+data.channel]?
-						msgs[data.network+data.channel] = []
-					msgs[data.network+data.channel].push { type:"chaction", message: "<b>" + data.nickname + "</b>  has been kicked by <b>" + data.by + "</b> (" + data.reason + ")", timestamp: formatTime data.time }
+				switch type
+					when "part"
+						if !msgs[data.network+data.channel]?
+							msgs[data.network+data.channel] = []
+						msgs[data.network+data.channel].push { type:"chaction", message: "<b>" + data.nickname + "</b>  has left the channel (" + data.reason + ")", timestamp: formatTime data.time }
+					when "kick"
+						if !msgs[data.network+data.channel]?
+							msgs[data.network+data.channel] = []
+						msgs[data.network+data.channel].push { type:"chaction", message: "<b>" + data.nickname + "</b>  has been kicked by <b>" + data.by + "</b> (" + data.reason + ")", timestamp: formatTime data.time }
+					when "quit"
+						# Fix channel bug (just in case)
+						if !Array.isArray data.channels
+							data.channels = [data.channels]
+						reason = ifval data.reason, ""
+						for chan in data.channels
+							if !msgs[data.network+chan]?
+								msgs[data.network+chan] = []
+							# Write quit message
+							msgs[data.network+chan].push { type:"chaction", message: "<b>" + data.nickname + "</b> has quit (" + reason + ")", timestamp: formatTime data.time }
 				# If we're in buffer mode we don't need to alter the list
 				break if self.bufferMode
 				# Delete user from list
 				ulist = self.userlist()
-				indexChan = data.network+data.channel
-				indexUser = ulist[indexChan].indexOf data.nickname
-				ulist[indexChan].splice (ulist[indexChan].indexOf data.nickname), 1 if indexUser > 0
-				self.userlist ulist
+				# Part and Kick involve only one channel
+				if type isnt "quit"
+					channels = [data.channel]
+				else
+					channels = data.channels
+				for chan in channels
+					indexChan = data.network+chan
+					indexUser = ulist[indexChan].indexOf data.nickname
+					ulist[indexChan].splice (ulist[indexChan].indexOf data.nickname), 1 if indexUser > 0
+					self.userlist ulist
 			when "mode"
 				data.argument = ifval data.argument, ""
 				data.by = ifval data.by, data.network
@@ -163,6 +180,9 @@ InterfaceViewModel = () ->
 					indexUser = ulist[indexChan].indexOf data.oldnick
 					ulist[indexChan][indexUser] = data.newnick if indexUser > 0
 				self.userlist ulist
+			when "quit"
+				self.switchTo data.network, ":status", false
+				msgs[data.network+":status"].push { type:"chaction", message: "Disconnected from <b>" + data.network + "</b>", timestamp: formatTime data.time }
 		self.messages msgs
 		scrollBottom()
 

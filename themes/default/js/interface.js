@@ -128,7 +128,7 @@
       return scrollBottom();
     };
     self.addChannelAction = function(type, data) {
-      var chan, indexChan, indexUser, msgs, nets, ulist, _i, _j, _len, _len1, _ref, _ref1;
+      var chan, channels, indexChan, indexUser, msgs, nets, reason, ulist, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2;
       msgs = self.messages();
       switch (type) {
         case "join":
@@ -156,6 +156,7 @@
           break;
         case "part":
         case "kick":
+        case "quit":
           if (!self.bufferMode && data.nickname === self.netNickname(data.network)) {
             self.switchTo(data.network, ":status", false);
             nets = self.networks();
@@ -164,35 +165,63 @@
             return;
           }
           data.reason = ifval(data.reason, "");
-          if (type === "part") {
-            if (msgs[data.network + data.channel] == null) {
-              msgs[data.network + data.channel] = [];
-            }
-            msgs[data.network + data.channel].push({
-              type: "chaction",
-              message: "<b>" + data.nickname + "</b>  has left the channel (" + data.reason + ")",
-              timestamp: formatTime(data.time)
-            });
-          } else {
-            if (msgs[data.network + data.channel] == null) {
-              msgs[data.network + data.channel] = [];
-            }
-            msgs[data.network + data.channel].push({
-              type: "chaction",
-              message: "<b>" + data.nickname + "</b>  has been kicked by <b>" + data.by + "</b> (" + data.reason + ")",
-              timestamp: formatTime(data.time)
-            });
+          switch (type) {
+            case "part":
+              if (msgs[data.network + data.channel] == null) {
+                msgs[data.network + data.channel] = [];
+              }
+              msgs[data.network + data.channel].push({
+                type: "chaction",
+                message: "<b>" + data.nickname + "</b>  has left the channel (" + data.reason + ")",
+                timestamp: formatTime(data.time)
+              });
+              break;
+            case "kick":
+              if (msgs[data.network + data.channel] == null) {
+                msgs[data.network + data.channel] = [];
+              }
+              msgs[data.network + data.channel].push({
+                type: "chaction",
+                message: "<b>" + data.nickname + "</b>  has been kicked by <b>" + data.by + "</b> (" + data.reason + ")",
+                timestamp: formatTime(data.time)
+              });
+              break;
+            case "quit":
+              if (!Array.isArray(data.channels)) {
+                data.channels = [data.channels];
+              }
+              reason = ifval(data.reason, "");
+              _ref = data.channels;
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                chan = _ref[_i];
+                if (msgs[data.network + chan] == null) {
+                  msgs[data.network + chan] = [];
+                }
+                msgs[data.network + chan].push({
+                  type: "chaction",
+                  message: "<b>" + data.nickname + "</b> has quit (" + reason + ")",
+                  timestamp: formatTime(data.time)
+                });
+              }
           }
           if (self.bufferMode) {
             break;
           }
           ulist = self.userlist();
-          indexChan = data.network + data.channel;
-          indexUser = ulist[indexChan].indexOf(data.nickname);
-          if (indexUser > 0) {
-            ulist[indexChan].splice(ulist[indexChan].indexOf(data.nickname), 1);
+          if (type !== "quit") {
+            channels = [data.channel];
+          } else {
+            channels = data.channels;
           }
-          self.userlist(ulist);
+          for (_j = 0, _len1 = channels.length; _j < _len1; _j++) {
+            chan = channels[_j];
+            indexChan = data.network + chan;
+            indexUser = ulist[indexChan].indexOf(data.nickname);
+            if (indexUser > 0) {
+              ulist[indexChan].splice(ulist[indexChan].indexOf(data.nickname), 1);
+            }
+            self.userlist(ulist);
+          }
           break;
         case "mode":
           data.argument = ifval(data.argument, "");
@@ -215,9 +244,9 @@
           if (!Array.isArray(data.channels)) {
             data.channels = [data.channels];
           }
-          _ref = data.channels;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            chan = _ref[_i];
+          _ref1 = data.channels;
+          for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+            chan = _ref1[_k];
             if (msgs[data.network + chan] == null) {
               msgs[data.network + chan] = [];
             }
@@ -231,9 +260,9 @@
             break;
           }
           ulist = self.userlist();
-          _ref1 = data.channels;
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            chan = _ref1[_j];
+          _ref2 = data.channels;
+          for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
+            chan = _ref2[_l];
             indexChan = data.network + chan;
             indexUser = ulist[indexChan].indexOf(data.oldnick);
             if (indexUser > 0) {
@@ -241,6 +270,14 @@
             }
           }
           self.userlist(ulist);
+          break;
+        case "quit":
+          self.switchTo(data.network, ":status", false);
+          msgs[data.network + ":status"].push({
+            type: "chaction",
+            message: "Disconnected from <b>" + data.network + "</b>",
+            timestamp: formatTime(data.time)
+          });
       }
       self.messages(msgs);
       return scrollBottom();
