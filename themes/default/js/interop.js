@@ -52,6 +52,10 @@
     return window["interface"].setTopic(data);
   });
 
+  socket.on('error', function(data) {
+    return window["interface"].addError(data.message.args.join(" "));
+  });
+
   command = Object.create(null);
 
   command.join = function(net, chan, nick, args) {
@@ -75,12 +79,30 @@
 
   command.nick = function(net, chan, nick, args) {
     var chanlist;
+    if (args[0] == null) {
+      return false;
+    }
     chanlist = Object.keys(window["interface"].networks()[net].chans);
     return socket.emit("nick", {
       network: net,
       nickname: nick,
       newnick: args[0],
       channels: chanlist
+    });
+  };
+
+  command.kick = function(net, chan, nick, args) {
+    var reas;
+    if (args[1] == null) {
+      return false;
+    }
+    reas = ifval(args[2], args[1]);
+    return socket.emit("kick", {
+      network: net,
+      nickname: nick,
+      channel: args[0],
+      nick: args[1],
+      message: reas
     });
   };
 

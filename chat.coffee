@@ -26,7 +26,7 @@ ChatClient.initClient = (socket) ->
 	networks = {}
 	for i,s of ChatClient.ircs
 		networks[i] =
-			nickname: s.client.opt.nick
+			nickname: s.client.nick
 			name: s.displayName
 			chans: s.client.chans
 	socket.emit "networks", networks

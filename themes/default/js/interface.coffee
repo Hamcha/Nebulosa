@@ -137,11 +137,12 @@ InterfaceViewModel = () ->
 			when "mode"
 				data.argument = ifval data.argument, ""
 				data.by = ifval data.by, data.network
+				if !msgs[data.network+data.channel]?
+					msgs[data.network+data.channel] = []
 				# Write mode message
 				msgs[data.network+data.channel].push { type:"chaction", message: "<b>" + data.by + "</b>  sets mode " + data.what + data.mode + " " + data.argument, timestamp: formatTime data.time }
 			when "nick"
-				console.log data
-				if data.oldnick == self.netNickname data.network
+				if !self.bufferMode and data.oldnick == self.netNickname data.network
 					nets = self.networks()
 					nets[data.network].nickname = data.newnick
 					self.networks nets

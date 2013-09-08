@@ -24,6 +24,8 @@ socket.on 'chaninfo', (data) -> window.interface.updateChannelInfo data
 
 socket.on 'topic', (data) -> window.interface.setTopic data
 
+socket.on 'error', (data) -> window.interface.addError data.message.args.join " "
+
 command = Object.create null
 
 command.join = (net,chan,nick,args) ->
@@ -36,9 +38,15 @@ command.part = (net,chan,nick,args) ->
 	socket.emit "part", { network: net, channel: pchan }
 
 command.nick = (net,chan,nick,args) ->
+	return false unless args[0]?
 	# Get all channels we're in
 	chanlist = Object.keys window.interface.networks()[net].chans
 	socket.emit "nick", { network: net, nickname: nick, newnick: args[0], channels: chanlist }
+
+command.kick = (net,chan,nick,args) ->
+	return false unless args[1]?
+	reas = ifval args[2], args[1]
+	socket.emit "kick", { network: net, nickname: nick, channel: args[0], nick:args[1], message:reas }
 
 window.interop =
 	socket : socket
