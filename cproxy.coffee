@@ -42,8 +42,7 @@ ClientProxy.ping = (socket, data) ->
 
 ClientProxy.nick = (socket, data) -> 
 	return unless ircsrv.ircs[data.network]?
-	message = { network:ircc.name, oldnick:data.nickname, newnick:data.newnick, channels:data.channels, time:new Date() }
-	ircsrv.pushBuffer data.network+"."+data.channel, "nick", message
+	message = { network:data.network, oldnick:data.nickname, newnick:data.newnick, channels:data.channels, time:new Date() }
 	ircsrv.ircs[data.network].client.send "NICK", data.newnick
 
 ClientProxy.invite = (socket, data) -> 

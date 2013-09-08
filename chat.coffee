@@ -44,7 +44,6 @@ ChatClient.sendBuffers = (socket) ->
 	return
 
 ChatClient.chanInfo = (net, chan) ->
-	console.log ChatClient.ircs[net].client.chans[chan]
 	return if ChatClient.ircs[net].client.chans? then ChatClient.ircs[net].client.chans[chan] else undefined
 
 ChatClient.pushBuffer = (bufferName, what, data) ->

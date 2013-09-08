@@ -46,8 +46,9 @@ EventProxy.ping = (ircc,s) ->
 
 EventProxy.nick = (ircc,an,nn,chan) -> 
 	message = { network:ircc.name, oldnick:an, newnick:nn, channels:chan, time:new Date() }
-	ircsrv.pushBuffer ircc.name+"."+chan, "nick", message
 	io.sockets.emit 'nick', message
+	# I could've just used MESSAGE, right? No, because Javascript is stupid.
+	ircsrv.pushBuffer ircc.name+"."+ch, "nick", { network:ircc.name, oldnick:an, newnick:nn, channels:ch, time:new Date() } for ch in chan
 
 EventProxy.invite = (ircc,chan,f) -> 
 	io.sockets.emit 'invite', { network:ircc.name, channel:chan, from:f, time:new Date() }

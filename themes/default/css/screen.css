@@ -22,7 +22,7 @@ a {
     bottom: 4px; }
 
 #leftbar {
-  position: fixed;
+  position: absolute;
   top: 41px;
   bottom: 41px;
   left: 0;
@@ -30,7 +30,7 @@ a {
   border-right: 1px solid #ddd; }
 
 #centerbar {
-  position: fixed;
+  position: absolute;
   top: 41px;
   bottom: 41px;
   left: 161px;
@@ -39,7 +39,7 @@ a {
   padding: 0; }
 
 #rightbar {
-  position: fixed;
+  position: absolute;
   top: 41px;
   bottom: 41px;
   right: 0;
@@ -47,7 +47,7 @@ a {
   border-left: 1px solid #ddd; }
 
 #bottombar {
-  position: fixed;
+  position: absolute;
   bottom: 0;
   height: 40px;
   border-top: 1px solid #ddd; }

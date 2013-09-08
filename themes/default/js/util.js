@@ -13,6 +13,14 @@
     }
   };
 
+  window.ifval = function(val, def) {
+    if (val != null) {
+      return val;
+    } else {
+      return def;
+    }
+  };
+
   window.scrollBottom = function() {
     return $("#centerbar").animate({
       scrollTop: $("#centerbar").height()

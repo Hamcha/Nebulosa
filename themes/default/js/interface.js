@@ -128,11 +128,8 @@
       return scrollBottom();
     };
     self.addChannelAction = function(type, data) {
-      var indexChan, indexUser, msgs, nets, ulist;
+      var chan, indexChan, indexUser, msgs, nets, ulist, _i, _j, _len, _len1, _ref, _ref1;
       msgs = self.messages();
-      if (msgs[data.network + data.channel] == null) {
-        msgs[data.network + data.channel] = [];
-      }
       switch (type) {
         case "join":
           if (!self.bufferMode && data.nickname === self.netNickname(data.network)) {
@@ -142,9 +139,12 @@
             });
             return;
           }
+          if (msgs[data.network + data.channel] == null) {
+            msgs[data.network + data.channel] = [];
+          }
           msgs[data.network + data.channel].push({
             type: "chaction",
-            message: data.nickname + " has joined the channel.",
+            message: "<b>" + data.nickname + "</b>  has joined the channel",
             timestamp: formatTime(data.time)
           });
           if (self.bufferMode) {
@@ -155,18 +155,34 @@
           self.userlist(ulist);
           break;
         case "part":
-          if (data.nickname === self.netNickname(data.network)) {
+        case "kick":
+          if (!self.bufferMode && data.nickname === self.netNickname(data.network)) {
             self.switchTo(data.network, ":status", false);
             nets = self.networks();
             delete nets[data.network].chans[data.channel];
             self.networks(nets);
             return;
           }
-          msgs[data.network + data.channel].push({
-            type: "chaction",
-            message: data.nickname + " has left the channel.",
-            timestamp: formatTime(data.time)
-          });
+          data.reason = ifval(data.reason, "");
+          if (type === "part") {
+            if (msgs[data.network + data.channel] == null) {
+              msgs[data.network + data.channel] = [];
+            }
+            msgs[data.network + data.channel].push({
+              type: "chaction",
+              message: "<b>" + data.nickname + "</b>  has left the channel (" + data.reason + ")",
+              timestamp: formatTime(data.time)
+            });
+          } else {
+            if (msgs[data.network + data.channel] == null) {
+              msgs[data.network + data.channel] = [];
+            }
+            msgs[data.network + data.channel].push({
+              type: "chaction",
+              message: "<b>" + data.nickname + "</b>  has been kicked by <b>" + data.by + "</b> (" + data.reason + ")",
+              timestamp: formatTime(data.time)
+            });
+          }
           if (self.bufferMode) {
             break;
           }
@@ -175,6 +191,52 @@
           indexUser = ulist[indexChan].indexOf(data.nickname);
           if (indexUser > 0) {
             ulist[indexChan].splice(ulist[indexChan].indexOf(data.nickname), 1);
+          }
+          self.userlist(ulist);
+          break;
+        case "mode":
+          data.argument = ifval(data.argument, "");
+          data.by = ifval(data.by, data.network);
+          msgs[data.network + data.channel].push({
+            type: "chaction",
+            message: "<b>" + data.by + "</b>  sets mode " + data.what + data.mode + " " + data.argument,
+            timestamp: formatTime(data.time)
+          });
+          break;
+        case "nick":
+          console.log(data);
+          if (data.oldnick === self.netNickname(data.network)) {
+            nets = self.networks();
+            nets[data.network].nickname = data.newnick;
+            self.networks(nets);
+          }
+          if (!Array.isArray(data.channels)) {
+            data.channels = [data.channels];
+          }
+          _ref = data.channels;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            chan = _ref[_i];
+            if (msgs[data.network + chan] == null) {
+              msgs[data.network + chan] = [];
+            }
+            msgs[data.network + chan].push({
+              type: "chaction",
+              message: "<b>" + data.oldnick + "</b> is now <b>" + data.newnick + "</b>",
+              timestamp: formatTime(data.time)
+            });
+          }
+          if (self.bufferMode) {
+            break;
+          }
+          ulist = self.userlist();
+          _ref1 = data.channels;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            chan = _ref1[_j];
+            indexChan = data.network + chan;
+            indexUser = ulist[indexChan].indexOf(data.oldnick);
+            if (indexUser > 0) {
+              ulist[indexChan][indexUser] = data.newnick;
+            }
           }
           self.userlist(ulist);
       }

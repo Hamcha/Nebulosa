@@ -11,10 +11,10 @@ a { cursor: pointer; }
 	#inputbar { position: absolute; left: 1px; right: 1px; bottom: 4px;}
 }
 
-#leftbar { position: fixed; top: 41px; bottom: 41px; left: 0; width: 130px; border-right: 1px solid #ddd;}
-#centerbar { position: fixed; top: 41px; bottom: 41px; left: 161px; right: 151px; overflow-y: auto; padding: 0;}
-#rightbar { position: fixed; top: 41px; bottom: 41px; right: 0; width: 150px; border-left: 1px solid #ddd;}
-#bottombar { position: fixed; bottom: 0; height: 40px; border-top: 1px solid #ddd;}
+#leftbar { position: absolute; top: 41px; bottom: 41px; left: 0; width: 130px; border-right: 1px solid #ddd;}
+#centerbar { position: absolute; top: 41px; bottom: 41px; left: 161px; right: 151px; overflow-y: auto; padding: 0;}
+#rightbar { position: absolute; top: 41px; bottom: 41px; right: 0; width: 150px; border-left: 1px solid #ddd;}
+#bottombar { position: absolute; bottom: 0; height: 40px; border-top: 1px solid #ddd;}
 
 .us-list { position: absolute; top: 0; bottom: 0; left: 0; right: 0;
 	background-color: #eee;

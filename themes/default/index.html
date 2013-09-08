@@ -17,7 +17,7 @@
 <body>
 	<div id="container">
 		<!-- First Row (Navbar) -->
-		<div class="uk-float-left uk-width-1-1">
+		<div class="uk-float-left uk-width-1-1" style="position:relative;">
 			<nav class="uk-navbar" style="border-bottom: 1px solid #ddd;">
 				<a class="uk-navbar-toggle" data-uk-offcanvas="{target:'#extmenu'}"></a>
 				<ul class="uk-navbar-nav">
@@ -75,7 +75,7 @@
 					<!-- /ko -->
 					<!-- ko if: type == "chaction" -->
 					<div class="chaction uk-animation-fade">
-						<div data-bind="text: message">Message</div>
+						<div data-bind="html: message">Message</div>
 						<div class="timestamp" data-bind="text: timestamp"></div>
 					</div>
 					<!-- /ko -->

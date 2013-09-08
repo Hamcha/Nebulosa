@@ -28,6 +28,18 @@
     return window["interface"].addChannelAction("part", data);
   });
 
+  socket.on('kick', function(data) {
+    return window["interface"].addChannelAction("kick", data);
+  });
+
+  socket.on('mode', function(data) {
+    return window["interface"].addChannelAction("mode", data);
+  });
+
+  socket.on('nick', function(data) {
+    return window["interface"].addChannelAction("nick", data);
+  });
+
   socket.on('names', function(data) {
     return window["interface"].updateChannelUsers(data);
   });
@@ -58,6 +70,17 @@
     return socket.emit("part", {
       network: net,
       channel: pchan
+    });
+  };
+
+  command.nick = function(net, chan, nick, args) {
+    var chanlist;
+    chanlist = Object.keys(window["interface"].networks()[net].chans);
+    return socket.emit("nick", {
+      network: net,
+      nickname: nick,
+      newnick: args[0],
+      channels: chanlist
     });
   };
 

@@ -91,23 +91,23 @@ InterfaceViewModel = () ->
 	# Add channel action to list
 	self.addChannelAction = (type, data) ->
 		msgs = self.messages()
-		if !msgs[data.network+data.channel]?
-			msgs[data.network+data.channel] = []
 		switch type
 			when "join"
 				if !self.bufferMode and data.nickname == self.netNickname data.network
 					interop.socket.emit "chaninfo", {network:data.network,channel:data.channel}
 					return
+				if !msgs[data.network+data.channel]?
+					msgs[data.network+data.channel] = []
 				# Write join message
-				msgs[data.network+data.channel].push { type:"chaction", message: data.nickname + " has joined the channel.", timestamp: formatTime data.time }
+				msgs[data.network+data.channel].push { type:"chaction", message: "<b>" + data.nickname + "</b>  has joined the channel", timestamp: formatTime data.time }
 				# If we're in buffer mode we don't need to alter the list
 				break if self.bufferMode
 				# Add user to list
 				ulist = self.userlist()
 				ulist[data.network+data.channel].push data.nickname
 				self.userlist ulist
-			when "part"
-				if data.nickname == self.netNickname data.network
+			when "part","kick"
+				if !self.bufferMode and data.nickname == self.netNickname data.network
 					# Select another channel if we're on the parted one
 					self.switchTo data.network, ":status", false
 					# Get the channel to remove
@@ -116,8 +116,16 @@ InterfaceViewModel = () ->
 					delete nets[data.network].chans[data.channel]
 					self.networks nets
 					return
-				# Write part message
-				msgs[data.network+data.channel].push { type:"chaction", message: data.nickname + " has left the channel.", timestamp: formatTime data.time }
+				# Write part/kick message
+				data.reason = ifval data.reason, ""
+				if type is "part"
+					if !msgs[data.network+data.channel]?
+						msgs[data.network+data.channel] = []
+					msgs[data.network+data.channel].push { type:"chaction", message: "<b>" + data.nickname + "</b>  has left the channel (" + data.reason + ")", timestamp: formatTime data.time }
+				else
+					if !msgs[data.network+data.channel]?
+						msgs[data.network+data.channel] = []
+					msgs[data.network+data.channel].push { type:"chaction", message: "<b>" + data.nickname + "</b>  has been kicked by <b>" + data.by + "</b> (" + data.reason + ")", timestamp: formatTime data.time }
 				# If we're in buffer mode we don't need to alter the list
 				break if self.bufferMode
 				# Delete user from list
@@ -125,6 +133,34 @@ InterfaceViewModel = () ->
 				indexChan = data.network+data.channel
 				indexUser = ulist[indexChan].indexOf data.nickname
 				ulist[indexChan].splice (ulist[indexChan].indexOf data.nickname), 1 if indexUser > 0
+				self.userlist ulist
+			when "mode"
+				data.argument = ifval data.argument, ""
+				data.by = ifval data.by, data.network
+				# Write mode message
+				msgs[data.network+data.channel].push { type:"chaction", message: "<b>" + data.by + "</b>  sets mode " + data.what + data.mode + " " + data.argument, timestamp: formatTime data.time }
+			when "nick"
+				console.log data
+				if data.oldnick == self.netNickname data.network
+					nets = self.networks()
+					nets[data.network].nickname = data.newnick
+					self.networks nets
+				# Fix channel bug (just in case)
+				if !Array.isArray data.channels
+					data.channels = [data.channels]
+				for chan in data.channels
+					if !msgs[data.network+chan]?
+						msgs[data.network+chan] = []
+					# Write nick message
+					msgs[data.network+chan].push { type:"chaction", message: "<b>" + data.oldnick + "</b> is now <b>" + data.newnick + "</b>", timestamp: formatTime data.time }
+				# If we're in buffer mode we don't need to alter the list
+				break if self.bufferMode
+				# Modify user nick from list
+				ulist = self.userlist()
+				for chan in data.channels
+					indexChan = data.network+chan
+					indexUser = ulist[indexChan].indexOf data.oldnick
+					ulist[indexChan][indexUser] = data.newnick if indexUser > 0
 				self.userlist ulist
 		self.messages msgs
 		scrollBottom()
