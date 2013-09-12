@@ -12,7 +12,11 @@ EventProxy.part = (ircc,chan,nick,reas) ->
 
 EventProxy.message = (ircc,nick,chan,msg) ->
 	message = { network:ircc.name, nickname:nick, channel:chan, message:msg, time:new Date() }
-	ircsrv.pushBuffer ircc.name+"."+chan, "message", message
+	# Is query message?
+	if chan == ircc.client.nick
+		ircsrv.pushBuffer ircc.name+"."+nick, "message", message
+	else
+		ircsrv.pushBuffer ircc.name+"."+chan, "message", message
 	io.sockets.emit 'message', message
 
 EventProxy.names = (ircc,chan,nickl) -> 

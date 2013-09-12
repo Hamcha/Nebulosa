@@ -12,7 +12,7 @@ a { cursor: pointer; }
 }
 
 #leftbar { position: absolute; top: 41px; bottom: 41px; left: 0; width: 130px; border-right: 1px solid #ddd;}
-#centerbar { position: absolute; top: 41px; bottom: 41px; left: 161px; right: 151px; overflow-y: auto; padding: 0;}
+#centerbar { position: absolute; top: 41px; bottom: 41px; left: 161px; overflow-y: auto; padding: 0;}
 #rightbar { position: absolute; top: 41px; bottom: 41px; right: 0; width: 150px; border-left: 1px solid #ddd;}
 #bottombar { position: absolute; bottom: 0; height: 40px; border-top: 1px solid #ddd;}
 
@@ -57,3 +57,7 @@ a { cursor: pointer; }
 }
 
 .timestamp { position: absolute; right: 0; top:5px; width: 70px; opacity: .5;}
+
+.hiddenbar { display: none; }
+.normalwide { right: 151px; }
+.superwide { right: 0; }

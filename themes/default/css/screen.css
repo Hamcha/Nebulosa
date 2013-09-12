@@ -34,7 +34,6 @@ a {
   top: 41px;
   bottom: 41px;
   left: 161px;
-  right: 151px;
   overflow-y: auto;
   padding: 0; }
 
@@ -178,3 +177,12 @@ a {
   top: 5px;
   width: 70px;
   opacity: .5; }
+
+.hiddenbar {
+  display: none; }
+
+.normalwide {
+  right: 151px; }
+
+.superwide {
+  right: 0; }

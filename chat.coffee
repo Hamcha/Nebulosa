@@ -37,8 +37,8 @@ ChatClient.sendBuffers = (socket) ->
 	# Activate buffer mode (special flag)
 	socket.emit "buffers", true
 	for i,s of ChatClient.ircs
-		for j,c of s.client.chans when buffers[i+"."+c.key]?
-			bufItem = buffers[i+"."+c.key].get()
+		for j,c of buffers
+			bufItem = c.get()
 			socket.emit x.type, x.data for x in bufItem
 	# Disable buffer mode
 	socket.emit "buffers", false
