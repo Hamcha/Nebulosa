@@ -44,7 +44,7 @@ InterfaceViewModel = () ->
 		nets = self.networks()
 		curnet = self.currentNetwork()
 		curchan = self.currentChannel()
-		return false unless self.isChannel and nets isnt [] and curnet isnt "" and curchan isnt "" and curchan in nets[curnet].chans
+		return false unless self.isChannel and nets isnt [] and curnet isnt "" and curchan isnt "" and nets[curnet].chans[curchan]?
 		topic = nets[curnet].chans[curchan].topic
 		tnick = nets[curnet].chans[curchan].topicBy
 		return if topic? then {topic:topic, topicBy:tnick} else false
@@ -291,6 +291,7 @@ InterfaceViewModel = () ->
 	# Set new topic
 	self.setTopic = (data) ->
 		nets = self.networks()
+		return unless nets[data.network].chans[data.channel]?
 		nets[data.network].chans[data.channel].topic = data.topic
 		nets[data.network].chans[data.channel].topicBy = data.nickname
 		self.networks nets

@@ -36,10 +36,9 @@ ChatClient.initClient = (socket) ->
 ChatClient.sendBuffers = (socket) ->
 	# Activate buffer mode (special flag)
 	socket.emit "buffers", true
-	for i,s of ChatClient.ircs
-		for j,c of buffers
-			bufItem = c.get()
-			socket.emit x.type, x.data for x in bufItem
+	for j,c of buffers
+		bufItem = c.get()
+		socket.emit x.type, x.data for x in bufItem
 	# Disable buffer mode
 	socket.emit "buffers", false
 	return
