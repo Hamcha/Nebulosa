@@ -17,7 +17,7 @@
 <body>
 	<div id="container">
 		<!-- First Row (Navbar) -->
-		<div class="uk-float-left uk-width-1-1" style="position:relative;">
+		<div class="uk-float-left uk-width-1-1">
 			<nav class="uk-navbar" style="border-bottom: 1px solid #ddd;">
 				<a class="uk-navbar-toggle" data-uk-offcanvas="{target:'#extmenu'}"></a>
 				<ul class="uk-navbar-nav">
@@ -64,13 +64,14 @@
 				</li>
 			</ul>
 		</div>
-		<div id="centerbar" class="uk-panel uk-panel-box uk-vertical-align">
+		<div id="centerbar" class="uk-panel uk-panel-box uk-vertical-align normalwide">
 			<ul id="chatmessages" class="uk-list uk-list-striped uk-vertical-align-bottom" data-bind="foreach: channelActivity">
 				<li style="position:relative;">
 					<!-- ko if: type == "message" -->
 					<div style="display: table-row;" class="uk-animation-fade">
 						<!-- ko if: shownick -->
-						<div class="username" data-bind="text: user"></div> 
+
+						<div class="username" data-bind="text: user, style: { color: colorNick(user) }"></div> 
 						<!-- /ko --><!-- ko ifnot: shownick -->
 						<div class="username">&nbsp;</div> 
 						<!-- /ko -->

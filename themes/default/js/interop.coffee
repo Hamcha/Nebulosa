@@ -65,6 +65,20 @@ command.quit = (net,chan,nick,args) ->
 command.connect = (net,chan,nick,args) ->
 	socket.emit "connect", { network: net }
 
+command.msg = (net,chan,nick,args) ->
+	return false if args.length < 2
+	chan = args.splice 0,1
+	msg = args.join " "
+	socket.emit "message", { network: net, nickname: nick, channel: chan, message: msg }
+	window.interface.addMessage { network: net, nickname: nick, channel: chan, message: msg, time: +new Date }
+
+command.notice = (net,chan,nick,args) ->
+	return false if args.length < 2
+	chan = args.splice 0,1
+	msg = args.join " "
+	socket.emit "notice", { network: net, nickname: nick, channel: chan, message: msg }
+	window.interface.addNotice { network: net, nickname: nick, channel: chan, message: msg, time: +new Date }
+
 window.interop =
 	socket : socket
 	command : command

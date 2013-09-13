@@ -8,7 +8,7 @@ a { cursor: pointer; }
 }
 #inputbarcont { 
 	position: absolute; left: 170px; right: 160px; bottom: 0;
-	#inputbar { position: absolute; left: 1px; right: 1px; bottom: 4px;}
+	#inputbar { position: relative; width: 100%; bottom: 4px;}
 }
 
 #leftbar { position: absolute; top: 41px; bottom: 41px; left: 0; width: 130px; border-right: 1px solid #ddd;}
@@ -38,9 +38,10 @@ a { cursor: pointer; }
 .chanlist > li > a { padding:5px; line-height: 2em;}
 
 .username { 
-	display: table-cell; background-color: #e3e3e3; width: 100px; height:22px;
+	display: table-cell; background-color: #e3e3e3; width: 100px; max-width: 100px; height:22px;
 	text-align: right; white-space: nowrap; padding: 5px; margin: -5px 4px -12px -4px; 
-	border-right: 5px solid #e3e3e3;
+	border-right: 5px solid #e3e3e3; font-weight: bold; text-overflow: ellipsis;
+	overflow:hidden;
 }
 .message { display: table-cell; padding-left: 5px; padding-right: 80px;}
 .chaction {	padding: 5px; background-color: #def; color: #369; padding-left: 10px; padding-right: 80px;}

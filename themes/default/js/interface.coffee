@@ -44,7 +44,7 @@ InterfaceViewModel = () ->
 		nets = self.networks()
 		curnet = self.currentNetwork()
 		curchan = self.currentChannel()
-		return false unless self.isChannel and nets isnt [] and curnet isnt "" and curchan isnt ""
+		return false unless self.isChannel and nets isnt [] and curnet isnt "" and curchan isnt "" and curchan in nets[curnet].chans
 		topic = nets[curnet].chans[curchan].topic
 		tnick = nets[curnet].chans[curchan].topicBy
 		return if topic? then {topic:topic, topicBy:tnick} else false
@@ -186,7 +186,7 @@ InterfaceViewModel = () ->
 				for chan in data.channels
 					indexChan = data.network+"."+chan
 					indexUser = ulist[indexChan].indexOf data.oldnick
-					ulist[indexChan][indexUser] = data.newnick if indexUser > 0
+					ulist[indexChan][indexUser] = data.newnick if indexUser >= 0
 				self.userlist ulist
 			when "quit"
 				self.switchTo data.network, ":status", false

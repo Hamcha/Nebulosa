@@ -143,6 +143,50 @@
     });
   };
 
+  command.msg = function(net, chan, nick, args) {
+    var msg;
+    if (args.length < 2) {
+      return false;
+    }
+    chan = args.splice(0, 1);
+    msg = args.join(" ");
+    socket.emit("message", {
+      network: net,
+      nickname: nick,
+      channel: chan,
+      message: msg
+    });
+    return window["interface"].addMessage({
+      network: net,
+      nickname: nick,
+      channel: chan,
+      message: msg,
+      time: +(new Date)
+    });
+  };
+
+  command.notice = function(net, chan, nick, args) {
+    var msg;
+    if (args.length < 2) {
+      return false;
+    }
+    chan = args.splice(0, 1);
+    msg = args.join(" ");
+    socket.emit("notice", {
+      network: net,
+      nickname: nick,
+      channel: chan,
+      message: msg
+    });
+    return window["interface"].addNotice({
+      network: net,
+      nickname: nick,
+      channel: chan,
+      message: msg,
+      time: +(new Date)
+    });
+  };
+
   window.interop = {
     socket: socket,
     command: command

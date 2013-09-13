@@ -43,6 +43,14 @@ servers.ponychat =
 	# Channels to join when connected
 	autojoin : [ "#testbass", "#testbass2" ]
 
+servers.rizon = 
+	name     : "Rizon"
+	address  : "irc.rizon.net"
+	nickname : "nebulosa"			 # Default nickname
+	realname : "Nebulosa IRC Client" # Real name
+	# Channels to join when connected
+	autojoin : [ "#brls" ]
+
 ## DON'T EDIT BELOW THIS POINT (or things will turn ugly)
 
 module.exports =

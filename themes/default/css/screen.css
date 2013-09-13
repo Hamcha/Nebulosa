@@ -16,9 +16,8 @@ a {
   right: 160px;
   bottom: 0; }
   #inputbarcont #inputbar {
-    position: absolute;
-    left: 1px;
-    right: 1px;
+    position: relative;
+    width: 100%;
     bottom: 4px; }
 
 #leftbar {
@@ -111,12 +110,16 @@ a {
   display: table-cell;
   background-color: #e3e3e3;
   width: 100px;
+  max-width: 100px;
   height: 22px;
   text-align: right;
   white-space: nowrap;
   padding: 5px;
   margin: -5px 4px -12px -4px;
-  border-right: 5px solid #e3e3e3; }
+  border-right: 5px solid #e3e3e3;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  overflow: hidden; }
 
 .message {
   display: table-cell;
