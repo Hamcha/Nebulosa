@@ -109,7 +109,7 @@
 		</div>
 		<div id="rightbar" class="uk-panel">
 			<ul id="userlist" class="uk-list us-list" data-bind="foreach: channelUsers">
-				<li data-bind="text: $data"><!--<div class="symbol">@</div>-->Username</li>
+				<li><div class="symbol" data-bind="text: val"></div><span class="nickname" data-bind="text: nick">Username</span></li>
 			</ul>
 		</div>
 		<!-- Third Row (Writebar n stuff) -->

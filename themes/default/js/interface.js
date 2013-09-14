@@ -401,8 +401,28 @@
       _ref = data.nicks;
       for (uname in _ref) {
         uval = _ref[uname];
-        uchan.push(uname);
+        uchan.push({
+          "nick": uname,
+          "val": uval
+        });
       }
+      uchan.sort(function(a, b) {
+        var vals;
+        vals = "+%@&~";
+        if (a.val === "" && b.val !== "") {
+          return true;
+        }
+        if (b.val === "" && a.val !== "") {
+          return false;
+        }
+        if (vals.indexOf(b.val) > vals.indexOf(a.val)) {
+          return true;
+        }
+        if (vals.indexOf(a.val) > vals.indexOf(b.val)) {
+          return false;
+        }
+        return a.nick > b.nick;
+      });
       ulist[indexChan] = uchan;
       return self.userlist(ulist);
     };

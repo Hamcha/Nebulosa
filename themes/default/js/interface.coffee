@@ -283,8 +283,21 @@ InterfaceViewModel = () ->
 		indexChan = data.network+"."+data.channel
 		ulist = self.userlist()
 		uchan = []
+		# Push nicks into array
 		for uname,uval of data.nicks
-			uchan.push uname
+			uchan.push {"nick":uname,"val":uval}
+		# Order array
+		uchan.sort (a,b) ->
+			# Mode order
+			vals = "+%@&~"
+			# Return the one with a mode set
+			return true  if a.val == "" and b.val != ""
+			return false if b.val == "" and a.val != ""
+			# Return the one with higher mode
+			return true  if vals.indexOf(b.val) > vals.indexOf(a.val)
+			return false if vals.indexOf(a.val) > vals.indexOf(b.val)
+			# Otherwise sort on alphabetical sorting
+			return a.nick > b.nick
 		ulist[indexChan] = uchan
 		self.userlist ulist
 

@@ -56,12 +56,16 @@ a {
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: #eee; }
+  background-color: #eee;
+  overflow: auto; }
   .us-list li {
     padding: 3px 5px;
     border: 2px solid #eee;
     border-bottom-width: 0;
-    background-color: #e3e3e3; }
+    background-color: #e3e3e3;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis; }
     .us-list li:hover {
       border-color: #39f;
       cursor: pointer;
@@ -157,7 +161,8 @@ a {
   width: 13px;
   margin-right: 5px;
   text-align: center;
-  font-weight: bold; }
+  font-family: "Courier",monospace;
+  font-size: 1.2em; }
 
 .topic {
   position: absolute;

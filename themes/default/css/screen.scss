@@ -16,11 +16,13 @@ a { cursor: pointer; }
 #rightbar { position: absolute; top: 41px; bottom: 41px; right: 0; width: 150px; border-left: 1px solid #ddd;}
 #bottombar { position: absolute; bottom: 0; height: 40px; border-top: 1px solid #ddd;}
 
-.us-list { position: absolute; top: 0; bottom: 0; left: 0; right: 0;
-	background-color: #eee;
+.us-list {
+	position: absolute; top: 0; bottom: 0; left: 0; right: 0;
+	background-color: #eee; overflow: auto;
 	li { 
 		padding: 3px 5px; border: 2px solid #eee; border-bottom-width: 0; background-color: #e3e3e3;
 		&:hover { border-color: #39f; cursor: pointer; background-color: #39f; color: #fff; text-decoration: none;}
+		overflow:hidden; white-space: nowrap; text-overflow: ellipsis;
 	}
 }
 .uk-list ul { padding-left: 10px; }
@@ -49,7 +51,10 @@ a { cursor: pointer; }
 .error { padding: 5px; padding-left: 10px; background-color: #fee; color: #d53; padding-right: 80px;}
 .whoiscont { padding: 5px; padding-left: 10px; line-height: 1.5em;}
 
-.symbol { display: inline-block; width: 13px; margin-right: 5px; text-align: center; font-weight: bold; }
+.symbol { 
+	display: inline-block; width: 13px; margin-right: 5px; text-align: center;
+	font-family: "Courier",monospace; font-size: 1.2em;
+}
 .topic { 
 	position: absolute; left: 220px; right: 220px; padding: 10px 15px;
 	white-space: nowrap; text-overflow: ellipsis; overflow: hidden; text-align: center;
