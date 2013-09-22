@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+	<meta charset="utf-8">
 	<title>Nebulosa IRC Client</title>
 	<!-- Required libraries and styles -->
 	<link rel="stylesheet" href="/css/uikit.min.css" />
@@ -21,15 +22,6 @@
 			<nav class="uk-navbar" style="border-bottom: 1px solid #ddd;">
 				<a class="uk-navbar-toggle" data-uk-offcanvas="{target:'#extmenu'}"></a>
 				<ul class="uk-navbar-nav">
-					<li><a>New server</a></li>
-					<li class="uk-parent" data-uk-dropdown><a href="#">Scripts</a>
-						<div class="uk-dropdown uk-dropdown-navbar">
-							<ul class="uk-nav uk-nav-navbar">
-								<li><a>New script</a></li>
-								<li><a>Manage active scripts</a></li>
-							</ul>
-						</div>
-					</li>
 				</ul>
 				<!-- ko if: currentTopic -->
 				<div class="topic uk-animation-fade" data-bind="with: currentTopic">

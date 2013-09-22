@@ -1,3 +1,8 @@
+User = (nick,val) ->
+	this.nick = ko.observable nick
+	this.val = ko.observable val
+	return
+
 InterfaceViewModel = () ->
 	self = this
 
@@ -34,7 +39,11 @@ InterfaceViewModel = () ->
 		return tdata
 
 	# Get the user list for the active channel
-	self.channelUsers = ko.computed () -> self.userlist()[self.currentNetwork()+"."+self.currentChannel()]
+	self.channelUsers = ko.computed () -> 
+		ulist = self.userlist()[self.currentNetwork()+"."+self.currentChannel()]
+		return unless ulist?
+		ulist.sort self.nickSort
+		return ulist
 
 	# Get the activity for the active channel
 	self.channelActivity = ko.computed () -> self.messages()[self.currentNetwork()+"."+self.currentChannel()]
@@ -112,7 +121,7 @@ InterfaceViewModel = () ->
 				break if self.bufferMode
 				# Add user to list
 				ulist = self.userlist()
-				ulist[data.network+"."+data.channel].push data.nickname
+				ulist[data.network+"."+data.channel].push new User data.nickname,""
 				self.userlist ulist
 			when "part","kick","quit"
 				if !self.bufferMode and data.nickname == self.netNickname data.network
@@ -156,8 +165,8 @@ InterfaceViewModel = () ->
 					channels = data.channels
 				for chan in channels
 					indexChan = data.network+"."+chan
-					indexUser = ulist[indexChan].indexOf data.nickname
-					ulist[indexChan].splice (ulist[indexChan].indexOf data.nickname), 1 if indexUser > 0
+					indexUser = filterSingle ulist[indexChan], (x) -> x.nick == data.nickname
+					ulist[indexChan].splice indexUser, 1 if indexUser > 0
 					self.userlist ulist
 			when "mode"
 				data.argument = ifval data.argument, ""
@@ -185,8 +194,8 @@ InterfaceViewModel = () ->
 				ulist = self.userlist()
 				for chan in data.channels
 					indexChan = data.network+"."+chan
-					indexUser = ulist[indexChan].indexOf data.oldnick
-					ulist[indexChan][indexUser] = data.newnick if indexUser >= 0
+					indexUser = filterSingle ulist[indexChan], (x) -> x.nick() == data.oldnick
+					ulist[indexChan][indexUser.id].nick data.newnick if indexUser.id >= 0
 				self.userlist ulist
 			when "quit"
 				self.switchTo data.network, ":status", false
@@ -284,20 +293,7 @@ InterfaceViewModel = () ->
 		ulist = self.userlist()
 		uchan = []
 		# Push nicks into array
-		for uname,uval of data.nicks
-			uchan.push {"nick":uname,"val":uval}
-		# Order array
-		uchan.sort (a,b) ->
-			# Mode order
-			vals = "+%@&~"
-			# Return the one with a mode set
-			return true  if a.val == "" and b.val != ""
-			return false if b.val == "" and a.val != ""
-			# Return the one with higher mode
-			return true  if vals.indexOf(b.val) > vals.indexOf(a.val)
-			return false if vals.indexOf(a.val) > vals.indexOf(b.val)
-			# Otherwise sort on alphabetical sorting
-			return a.nick > b.nick
+		uchan.push new User uname,uval for uname,uval of data.nicks
 		ulist[indexChan] = uchan
 		self.userlist ulist
 
@@ -327,6 +323,21 @@ InterfaceViewModel = () ->
 		self.currentNetwork nets[0].id if nets[0]?
 		self.currentChannel nets[0].chans[0].key if nets[0].chans[0]?
 		return
+
+	self.nickSort = (a,b) ->
+		# Mode order
+		vals = "+%@&~"
+		# Return the one with a mode set
+		return  1 if a.val() == "" and b.val() != ""
+		return -1 if b.val() == "" and a.val() != ""
+		# Return the one with higher mode
+		if b.val() != a.val()
+			return  1 if vals.indexOf(b.val()) > vals.indexOf(a.val()) 
+			return -1 if vals.indexOf(b.val()) < vals.indexOf(a.val()) 
+		# Otherwise sort on alphabetical sorting
+		return  1 if b.nick() < a.nick()
+		return -1 if b.nick() > a.nick()
+		return  0
 	return
 
 window.interface = new InterfaceViewModel()
