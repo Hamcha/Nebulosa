@@ -9,6 +9,7 @@
 	<script src="/js/uikit.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="/js/knockout.js"></script>
+	<script src="/js/ba-linkify.min.js"></script>
 	<!-- Client libraries and styles -->
 	<link rel="stylesheet" href="/css/screen.css" />
 	<script src="/js/util.js"></script>
@@ -67,7 +68,7 @@
 						<!-- /ko --><!-- ko ifnot: shownick -->
 						<div class="username">&nbsp;</div> 
 						<!-- /ko -->
-						<div class="message" data-bind="text: message">Message</div>
+						<div class="message" data-bind="html: message">Message</div>
 						<div class="timestamp" data-bind="text: timestamp"></div>
 					</div>
 					<!-- /ko -->
@@ -79,7 +80,7 @@
 					<!-- /ko -->
 					<!-- ko if: type == "notice" -->
 					<div class="notice uk-animation-fade">
-						NOTICE (<b data-bind="text: user">User</b> &#8594; <b data-bind="text: channel">Chan</b>) : <span data-bind="text: message">Message</span>
+						NOTICE (<b data-bind="text: user">User</b> &#8594; <b data-bind="text: channel">Chan</b>) : <span data-bind="html: message">Message</span>
 						<div class="timestamp" data-bind="text: timestamp"></div>
 					</div>
 					<!-- /ko -->

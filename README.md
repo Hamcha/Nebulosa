@@ -18,6 +18,7 @@ Its architecture provides:
 ### What's missing
 
 - Implementation of all commands (WebInterface)
+- Links are not clickable
 - Message customization options (bold/underline/colors)
-- Script management (either Coffeescript or Javascript)
+- Script editor and management
 - Proper way to manage channels and networks inside the WebUI

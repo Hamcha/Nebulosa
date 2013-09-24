@@ -88,7 +88,7 @@ InterfaceViewModel = () ->
 		if m[m.length - 1]?
 			omitnick = true if m[m.length - 1].user is data.nickname
 		# Push message to the list
-		msgs[data.network+"."+data.channel].push { type:"message", shownick: !omitnick?, user: data.nickname, message: data.message, timestamp: formatTime data.time }
+		msgs[data.network+"."+data.channel].push { type:"message", shownick: !omitnick?, user: data.nickname, message: self.processMessage(data.message), timestamp: formatTime data.time }
 		self.messages msgs
 		# Scroll message list
 		scrollBottom()
@@ -101,7 +101,7 @@ InterfaceViewModel = () ->
 		msgs = self.messages()
 		if !msgs[curnet+"."+curchan]?
 			msgs[curnet+"."+curchan] = []
-		msgs[curnet+"."+curchan].push { type:"notice", channel: data.channel, user: data.nickname, message: data.message, timestamp: formatTime data.time }
+		msgs[curnet+"."+curchan].push { type:"notice", channel: data.channel, user: data.nickname, message: self.processMessage(data.message), timestamp: formatTime data.time }
 		self.messages msgs
 		scrollBottom()
 
@@ -232,6 +232,14 @@ InterfaceViewModel = () ->
 		self.messages msgs
 		scrollBottom()
 
+	self.processMessage = (message) ->
+		# Strip harmful html
+		message = htmlEntities message
+		# Linkify links
+		message = linkify message
+		# TODO: bold and other irc properties
+		return message
+	
 	# Send message to server
 	self.sendMessage = () ->
 		# Get vars to avoid calling them multiple times
@@ -273,6 +281,7 @@ InterfaceViewModel = () ->
 			self.isChannel = isChannel
 		self.currentNetwork network
 		self.currentChannel channel
+		scrollBottom()
 
 	# Update channel info
 	self.updateChannelInfo = (data) ->

@@ -43,4 +43,11 @@ window.colorNick = (nick) ->
 	if outGrn.length < 2 then outGrn = "0" + outGrn
 	if outBlu.length < 2 then outBlu = "0" + outBlu
 	# Return custom value
-	"#"+outRed+outGrn+outBlu
+	return "#"+outRed+outGrn+outBlu
+
+window.htmlEntities = (str) ->
+	str = str.replace /&/g, '&amp;'
+	str = str.replace /</g, '&lt;'
+	str = str.replace />/g, '&gt;'
+	str = str.replace /"/g, '&quot;'
+	return String str

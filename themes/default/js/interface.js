@@ -126,7 +126,7 @@
         type: "message",
         shownick: omitnick == null,
         user: data.nickname,
-        message: data.message,
+        message: self.processMessage(data.message),
         timestamp: formatTime(data.time)
       });
       self.messages(msgs);
@@ -144,7 +144,7 @@
         type: "notice",
         channel: data.channel,
         user: data.nickname,
-        message: data.message,
+        message: self.processMessage(data.message),
         timestamp: formatTime(data.time)
       });
       self.messages(msgs);
@@ -346,6 +346,11 @@
       self.messages(msgs);
       return scrollBottom();
     };
+    self.processMessage = function(message) {
+      message = htmlEntities(message);
+      message = linkify(message);
+      return message;
+    };
     self.sendMessage = function() {
       var action, curnick, message, parts, tochn, tonet;
       tonet = self.currentNetwork();
@@ -392,7 +397,8 @@
         self.isChannel = isChannel;
       }
       self.currentNetwork(network);
-      return self.currentChannel(channel);
+      self.currentChannel(channel);
+      return scrollBottom();
     };
     self.updateChannelInfo = function(data) {
       var nets;

@@ -97,4 +97,12 @@
     return "#" + outRed + outGrn + outBlu;
   };
 
+  window.htmlEntities = function(str) {
+    str = str.replace(/&/g, '&amp;');
+    str = str.replace(/</g, '&lt;');
+    str = str.replace(/>/g, '&gt;');
+    str = str.replace(/"/g, '&quot;');
+    return String(str);
+  };
+
 }).call(this);
