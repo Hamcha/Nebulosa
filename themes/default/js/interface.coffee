@@ -1,3 +1,12 @@
+Channel = (cdata) ->
+	this.created = cdata.created
+	this.key = cdata.key
+	this.isquery = false
+	this.unread = ko.observable false
+	this.serverName = cdata.serverName
+	this.mode = ko.observable cdata.mode
+	return
+
 User = (nick,val) ->
 	this.nick = ko.observable nick
 	this.val = ko.observable val
@@ -29,6 +38,7 @@ InterfaceViewModel = () ->
 			# Put chans on array structure
 			for cname, cval of network.chans
 				cval.id = cname
+				cval.unread()
 				tnet.chans.push cval
 				# Prepare userlist
 				uchan = []
@@ -77,8 +87,8 @@ InterfaceViewModel = () ->
 		# Is a query and it's not created? Create it already!
 		if data.channel is self.netNickname(data.network)
 			if !nets[data.network].chans[data.nickname]?
-				nets[data.network].chans[data.nickname] = {key: data.nickname, id: data.nickname}
-				nets[data.network].chans[data.nickname] .isquery = true
+				nets[data.network].chans[data.nickname] = new Channel {key: data.nickname, id: data.nickname}
+				nets[data.network].chans[data.nickname].isquery = true
 				self.networks nets
 			data.channel = data.nickname
 		if !msgs[data.network+"."+data.channel]?
@@ -89,6 +99,11 @@ InterfaceViewModel = () ->
 			omitnick = true if m[m.length - 1].user is data.nickname
 		# Push message to the list
 		msgs[data.network+"."+data.channel].push { type:"message", shownick: !omitnick?, user: data.nickname, message: self.processMessage(data.message), timestamp: formatTime data.time }
+		curnet = self.currentNetwork()
+		curchan = self.currentChannel()
+		if data.network isnt curnet or data.channel isnt curchan and not nets[data.network].chans[data.channel].unread()
+			nets[data.network].chans[data.channel].unread true
+		self.networks nets
 		self.messages msgs
 		# Scroll message list
 		scrollBottom()
@@ -282,6 +297,10 @@ InterfaceViewModel = () ->
 		self.currentNetwork network
 		self.currentChannel channel
 		scrollBottom()
+		# Remove unread state
+		nets = self.networks()
+		nets[network].chans[channel].unread false
+		self.networks nets
 
 	# Update channel info
 	self.updateChannelInfo = (data) ->
@@ -289,8 +308,7 @@ InterfaceViewModel = () ->
 		# Update userlist
 		self.updateChannelUsers { network: data.network, channel: data.channeldata.key, nicks: data.channeldata.users }
 		# Create or replace channel data
-		nets[data.network].chans[data.channeldata.key] = data.channeldata
-		nets[data.network].chans[data.channeldata.key].isquery = false
+		nets[data.network].chans[data.channeldata.key] = new Channel data.channeldata
 		# Update network/channel list
 		self.networks nets
 		self.currentNetwork data.network
@@ -310,8 +328,8 @@ InterfaceViewModel = () ->
 	self.setTopic = (data) ->
 		nets = self.networks()
 		return unless nets[data.network].chans[data.channel]?
-		nets[data.network].chans[data.channel].topic = data.topic
-		nets[data.network].chans[data.channel].topicBy = data.nickname
+		nets[data.network].chans[data.channel].topic data.topic
+		nets[data.network].chans[data.channel].topicBy data.nickname
 		self.networks nets
 		# Create message with topic change
 		msgs = self.messages()
@@ -325,8 +343,11 @@ InterfaceViewModel = () ->
 	self.initNetworks = (data) ->
 		for nid,network of data
 			for cname, cval of network.chans
-				data[nid].chans[cname].isquery = false
 				self.updateChannelUsers { network: nid, channel: cname, nicks: cval.users }
+			# Create channels from objects
+			chanobjs = {}
+			chanobjs[cid] = new Channel chan for cid,chan of data[nid].chans
+			data[nid].chans = chanobjs
 		self.networks data
 		nets = self.networkList()
 		self.currentNetwork nets[0].id if nets[0]?

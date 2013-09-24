@@ -44,10 +44,16 @@
 					<ul class="uk-list sublist" data-bind="foreach: chans">
 						<!-- ko if:  $root.currentNetwork() != $parent.id || $root.currentChannel() != key -->
 							<!-- ko if: isquery -->
-						<a data-bind="click: $root.switchTo.bind($data,$parent.id,key,false)"><li data-bind="text: key"></li></a>
+						<a data-bind="click: $root.switchTo.bind($data,$parent.id,key,false)">
+							<!-- ko if: unread --><li class="cnew" data-bind="text: key"></li><!-- /ko -->
+							<!-- ko ifnot: unread --><li data-bind="text: key"></li><!-- /ko -->
+						</a>
 							<!-- /ko -->
 							<!-- ko ifnot: isquery -->
-						<a data-bind="click: $root.switchTo.bind($data,$parent.id,key,true)"><li data-bind="text: key"></li></a>
+						<a data-bind="click: $root.switchTo.bind($data,$parent.id,key,true)">
+							<!-- ko if: unread --><li class="cnew" data-bind="text: key"></li><!-- /ko -->
+							<!-- ko ifnot: unread --><li data-bind="text: key"></li><!-- /ko -->
+						</a>
 							<!-- /ko -->
 						<!-- /ko -->
 						<!-- ko if: $root.currentNetwork() == $parent.id && $root.currentChannel() == key -->
