@@ -388,14 +388,17 @@ $(document).ready () ->
 	$("#inputbarcont").on "keydown", '#inputbar', (e) ->
 		keyCode = e.keyCode || e.which; 
 		if keyCode == 9
-			words = $("#inputbar").val().split " "
-			wordComplete = words[words.length-1] if wordComplete == null
-			users = window.interface.channelUsers().filter (elem) ->
-				elem.nick().toLowerCase().indexOf(wordComplete.toLowerCase()) == 0
-			lastIndex = 0 if lastIndex >= users.length
-			words[words.length-1] = users[lastIndex].nick()
-			lastIndex++
-			$("#inputbar").val words.join " "
+			words = window.interface.messageBar().split " "
+			if window.interface.isChannel
+				wordComplete = words[words.length-1] if wordComplete == null
+				users = window.interface.channelUsers().filter (elem) ->
+					elem.nick().toLowerCase().indexOf(wordComplete.toLowerCase()) == 0
+				lastIndex = 0 if lastIndex >= users.length
+				words[words.length-1] = users[lastIndex].nick()
+				lastIndex++
+			else
+				words[words.length-1] = window.interface.currentChannel()
+			window.interface.messageBar words.join " "
 			e.preventDefault()
 		else
 			wordComplete = null if wordComplete != null

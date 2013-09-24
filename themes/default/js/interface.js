@@ -555,19 +555,23 @@
       var keyCode, users, words;
       keyCode = e.keyCode || e.which;
       if (keyCode === 9) {
-        words = $("#inputbar").val().split(" ");
-        if (wordComplete === null) {
-          wordComplete = words[words.length - 1];
+        words = window["interface"].messageBar().split(" ");
+        if (window["interface"].isChannel) {
+          if (wordComplete === null) {
+            wordComplete = words[words.length - 1];
+          }
+          users = window["interface"].channelUsers().filter(function(elem) {
+            return elem.nick().toLowerCase().indexOf(wordComplete.toLowerCase()) === 0;
+          });
+          if (lastIndex >= users.length) {
+            lastIndex = 0;
+          }
+          words[words.length - 1] = users[lastIndex].nick();
+          lastIndex++;
+        } else {
+          words[words.length - 1] = window["interface"].currentChannel();
         }
-        users = window["interface"].channelUsers().filter(function(elem) {
-          return elem.nick().toLowerCase().indexOf(wordComplete.toLowerCase()) === 0;
-        });
-        if (lastIndex >= users.length) {
-          lastIndex = 0;
-        }
-        words[words.length - 1] = users[lastIndex].nick();
-        lastIndex++;
-        $("#inputbar").val(words.join(" "));
+        window["interface"].messageBar(words.join(" "));
         return e.preventDefault();
       } else {
         if (wordComplete !== null) {
