@@ -523,7 +523,7 @@
         return;
       }
       self.authdialog.hide();
-      return interop.createSocket(formdata.username.value, formdata.password.value);
+      return interop.socket = interop.createSocket(formdata.username.value, formdata.password.value);
     };
   };
 

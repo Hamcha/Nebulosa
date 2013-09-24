@@ -14,7 +14,7 @@
       if (data === "handshake unauthorized") {
         return window["interface"].AuthError();
       } else {
-        return window["interface"].Exception("Connection lost..", true);
+        return window["interface"].Exception("Connection has been lost..", true);
       }
     });
     socket.on('networks', function(data) {

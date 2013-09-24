@@ -7,7 +7,7 @@ createSocket = (user,pass) ->
 		if data == "handshake unauthorized"
 			window.interface.AuthError()
 		else
-			window.interface.Exception "Connection lost..", true
+			window.interface.Exception "Connection has been lost..", true
 
 	socket.on 'networks', 	(data) -> window.interface.initNetworks data
 	socket.on 'buffers', 	(flag) -> window.interface.bufferMode = flag

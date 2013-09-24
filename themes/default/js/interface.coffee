@@ -361,7 +361,7 @@ InterfaceViewModel = () ->
 		formdata.password.className = if formdata.password.value is "" then "uk-form-danger" else ""
 		return if formdata.password.value is "" or formdata.username.value is ""
 		self.authdialog.hide()
-		interop.createSocket formdata.username.value,formdata.password.value
+		interop.socket = interop.createSocket formdata.username.value,formdata.password.value
 
 	return
 
