@@ -12,8 +12,8 @@
 	<!-- Client libraries and styles -->
 	<link rel="stylesheet" href="/css/screen.css" />
 	<script src="/js/util.js"></script>
-	<script src="/js/interface.js"></script>
 	<script src="/js/interop.js"></script>
+	<script src="/js/interface.js"></script>
 </head>
 <body>
 	<div id="container">
@@ -126,6 +126,28 @@
 	<div id="extmenu" class="uk-offcanvas">
 		<div class="uk-offcanvas-bar">
 			<div class="uk-panel">Test</div>
+		</div>
+	</div>
+	<div id="autherr" class="uk-modal">
+		<div class="uk-modal-dialog error-modal uk-modal-dialog-slide">
+			<h2>Authentication error</h2>
+			<p>The connection was refused, did you provide the correct credentials?</p>
+		</div>
+	</div>
+	<div id="authdlg" class="uk-modal">
+		<div class="uk-modal-dialog uk-modal-dialog-slide">
+			<h2>Authentication required</h2>
+			<p>This Nebulosa server is protected, please insert your credentials</p>
+			<form class="uk-form" data-bind="submit: auth">
+				<input type="text" id="userauth" name="username" placeholder="Username" />
+				<input type="password" id="pwdauth" name="password" placeholder="Password" />
+				<button class="uk-button" type="submit" />Sign In</button>
+			</form>
+		</div>
+	</div>
+	<div id="generr" class="uk-modal">
+		<div class="uk-modal-dialog error-modal uk-modal-dialog-slide">
+			<div id="generrcnt"></div>
 		</div>
 	</div>
 </body>

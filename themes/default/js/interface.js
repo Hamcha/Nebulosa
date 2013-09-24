@@ -491,12 +491,57 @@
       }
       return 0;
     };
+    self.AuthError = function() {
+      var modal;
+      modal = new $.UIkit.modal.Modal("#autherr");
+      return modal.show();
+    };
+    self.Exception = function(data, fatal) {
+      var modal;
+      if (fatal == null) {
+        fatal = false;
+      }
+      $("#generrcnt").html("<h2>Oops..</h2><p>" + data + "</p>");
+      modal = new $.UIkit.modal.Modal("#generr");
+      if (fatal) {
+        modal.options.bgclose = modal.options.keyboard = false;
+      }
+      return modal.show();
+    };
+    self.AuthDialog = function() {
+      if (self.authdialog == null) {
+        self.authdialog = new $.UIkit.modal.Modal("#authdlg");
+      }
+      self.authdialog.options.bgclose = self.authdialog.options.keyboard = false;
+      self.authdialog.show();
+      return $("#userauth").focus();
+    };
+    self.auth = function(formdata) {
+      formdata.username.className = formdata.username.value === "" ? "uk-form-danger" : "";
+      formdata.password.className = formdata.password.value === "" ? "uk-form-danger" : "";
+      if (formdata.password.value === "" || formdata.username.value === "") {
+        return;
+      }
+      self.authdialog.hide();
+      return interop.createSocket(formdata.username.value, formdata.password.value);
+    };
   };
 
   window["interface"] = new InterfaceViewModel();
 
   $(document).ready(function() {
-    return ko.applyBindings(window["interface"]);
+    ko.applyBindings(window["interface"]);
+    $.get("/useAuth", function(data) {
+      console.log(data);
+      if (data === "true") {
+        return window["interface"].AuthDialog();
+      } else {
+        return interop.createSocket();
+      }
+    });
+    return $('#autherr').on('uk.modal.hide', function() {
+      return location.reload();
+    });
   });
 
 }).call(this);

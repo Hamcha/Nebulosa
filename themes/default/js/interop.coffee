@@ -1,36 +1,31 @@
-socket = io.connect 'http://'+location.host
+socket = undefined
 
-socket.on 'networks', (data) -> window.interface.initNetworks data
+createSocket = (user,pass) ->
+	tryAuth = user? and pass?
+	socket = io.connect 'http://'+location.host, { query: "user="+user+"&pass="+pass }
+	socket.on 'error', (data) ->
+		if data == "handshake unauthorized"
+			window.interface.AuthError()
+		else
+			window.interface.Exception "Connection lost..", true
 
-socket.on 'buffers', (flag) -> window.interface.bufferMode = flag
-
-socket.on 'message', (data) -> window.interface.addMessage data
-
-socket.on 'notice', (data) -> window.interface.addNotice data
-
-socket.on 'whois', (data) -> window.interface.addWhois data
-
-socket.on 'join', (data) -> window.interface.addChannelAction "join", data
-
-socket.on 'part', (data) -> window.interface.addChannelAction "part", data
-
-socket.on 'kick', (data) -> window.interface.addChannelAction "kick", data
-
-socket.on 'mode', (data) -> window.interface.addChannelAction "mode", data
-
-socket.on 'nick', (data) -> window.interface.addChannelAction "nick", data
-
-socket.on 'quit', (data) -> window.interface.addChannelAction "quit", data
-
-socket.on 'disconnected', (data) -> window.interface.addChannelAction "disconnected", data
-
-socket.on 'names', (data) -> window.interface.updateChannelUsers data
-
-socket.on 'chaninfo', (data) -> window.interface.updateChannelInfo data
-
-socket.on 'topic', (data) -> window.interface.setTopic data
-
-socket.on 'error', (data) -> window.interface.addError data.message.args.join " "
+	socket.on 'networks', 	(data) -> window.interface.initNetworks data
+	socket.on 'buffers', 	(flag) -> window.interface.bufferMode = flag
+	socket.on 'message', 	(data) -> window.interface.addMessage data
+	socket.on 'notice', 	(data) -> window.interface.addNotice data
+	socket.on 'whois', 		(data) -> window.interface.addWhois data
+	socket.on 'join', 		(data) -> window.interface.addChannelAction "join", data
+	socket.on 'part', 		(data) -> window.interface.addChannelAction "part", data
+	socket.on 'kick', 		(data) -> window.interface.addChannelAction "kick", data
+	socket.on 'mode', 		(data) -> window.interface.addChannelAction "mode", data
+	socket.on 'nick', 		(data) -> window.interface.addChannelAction "nick", data
+	socket.on 'quit', 		(data) -> window.interface.addChannelAction "quit", data
+	socket.on 'names', 		(data) -> window.interface.updateChannelUsers data
+	socket.on 'chaninfo', 	(data) -> window.interface.updateChannelInfo data
+	socket.on 'topic', 		(data) -> window.interface.setTopic data
+	socket.on 'ircerror', 	(data) -> window.interface.addError data.message.args.join " "
+	socket.on 'disconnected', (data) -> window.interface.addChannelAction "disconnected", data
+	return socket
 
 command = Object.create null
 
@@ -80,5 +75,6 @@ command.notice = (net,chan,nick,args) ->
 	window.interface.addNotice { network: net, nickname: nick, channel: chan, message: msg, time: +new Date }
 
 window.interop =
+	createSocket : createSocket
 	socket : socket
 	command : command

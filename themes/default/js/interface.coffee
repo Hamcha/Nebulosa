@@ -338,9 +338,41 @@ InterfaceViewModel = () ->
 		return  1 if b.nick() < a.nick()
 		return -1 if b.nick() > a.nick()
 		return  0
+
+	self.AuthError = () ->
+		modal = new $.UIkit.modal.Modal "#autherr"
+		modal.show()
+
+	self.Exception = (data, fatal) ->
+		fatal = false unless fatal?
+		$("#generrcnt").html "<h2>Oops..</h2><p>"+data+"</p>"
+		modal = new $.UIkit.modal.Modal "#generr"
+		modal.options.bgclose = modal.options.keyboard = false if fatal
+		modal.show()
+
+	self.AuthDialog = () ->
+		self.authdialog = new $.UIkit.modal.Modal "#authdlg" unless self.authdialog?
+		self.authdialog.options.bgclose = self.authdialog.options.keyboard = false
+		self.authdialog.show()
+		$("#userauth").focus()
+
+	self.auth = (formdata) ->
+		formdata.username.className = if formdata.username.value is "" then "uk-form-danger" else ""
+		formdata.password.className = if formdata.password.value is "" then "uk-form-danger" else ""
+		return if formdata.password.value is "" or formdata.username.value is ""
+		self.authdialog.hide()
+		interop.createSocket formdata.username.value,formdata.password.value
+
 	return
 
 window.interface = new InterfaceViewModel()
 
 $(document).ready () ->
 	ko.applyBindings window.interface
+	$.get "/useAuth", (data) ->
+		console.log(data)
+		if data == "true"
+			window.interface.AuthDialog()
+		else 
+			interop.createSocket()
+	$('#autherr').on 'uk.modal.hide', () -> location.reload()

@@ -13,19 +13,21 @@ if not fs.existsSync "themes/"+config.webconf.theme
 	console.log "Custom theme \""+config.webconf.theme+"\" doesn't exist, falling back to \"default\""
 	config.webconf.theme = "default"
 
-# Setup static directory serving
-if config.webconf.username is "" or config.webconf.password is ""
-	web = connect().use connect.static "themes/"+config.webconf.theme
-else
-	#Use authentication if enabled
-	web = connect().use connect.basicAuth (user, pass) -> user == config.webconf.username and pass == config.webconf.password
-	web.use connect.static "themes/"+config.webconf.theme
+global.useAuth = config.webconf.username isnt "" and config.webconf.password isnt ""
 
+web = connect().use connect.static "themes/"+config.webconf.theme
+web.use (req,res) -> if req.url is "/useAuth" then res.end useAuth.toString() else res.end()
 # Create webserver and bind port
 wsrv = http.createServer web
 wsrv.listen config.webconf.bindport
 # Setup Socket.IO for listening
 global.io = socketio.listen wsrv, { log: false }
+
+if useAuth
+	io.set 'authorization', (handshakeData, cb) ->
+		if handshakeData.query.user? and handshakeData.query.user is config.webconf.username and handshakeData.query.pass? and  handshakeData.query.pass is config.webconf.password
+			return cb null, true
+		cb null, false
 # Start IRC Client
 ircsrv.start()
 

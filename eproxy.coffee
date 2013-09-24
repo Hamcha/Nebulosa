@@ -71,7 +71,7 @@ EventProxy.whois = (ircc,data) ->
 	io.sockets.emit 'whois', { network:ircc.name, info:data, time:new Date() }
 
 EventProxy.error = (ircc,err) -> 
-	io.sockets.emit 'error', { network:ircc.name, message:err }
+	io.sockets.emit 'ircerror', { network:ircc.name, message:err }
 
 EventProxy.list = (ircc,clist) -> 
 	io.sockets.emit 'list', { network:ircc.name, list:clist }
