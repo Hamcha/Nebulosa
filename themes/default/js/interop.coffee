@@ -25,7 +25,7 @@ createSocket = (user,pass) ->
 	socket.on 'topic', 		(data) -> window.interface.setTopic data
 	socket.on 'ircerror', 	(data) -> window.interface.addError data.message.args.join " "
 	socket.on 'disconnected', (data) -> window.interface.addChannelAction "disconnected", data
-	return socket
+	interop.socket = socket
 
 command = Object.create null
 

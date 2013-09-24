@@ -132,7 +132,9 @@ a {
 .message {
   display: table-cell;
   padding-left: 5px;
-  padding-right: 80px; }
+  padding-right: 80px;
+  word-wrap: break-word;
+  word-break: break-all; }
 
 .chaction {
   padding: 5px;
@@ -187,7 +189,7 @@ a {
   position: absolute;
   right: 0;
   top: 5px;
-  width: 70px;
+  width: 55px;
   opacity: .5; }
 
 .hiddenbar {

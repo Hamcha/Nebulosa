@@ -239,7 +239,7 @@ InterfaceViewModel = () ->
 		message = linkify message
 		# TODO: bold and other irc properties
 		return message
-	
+
 	# Send message to server
 	self.sendMessage = () ->
 		# Get vars to avoid calling them multiple times
@@ -370,18 +370,32 @@ InterfaceViewModel = () ->
 		formdata.password.className = if formdata.password.value is "" then "uk-form-danger" else ""
 		return if formdata.password.value is "" or formdata.username.value is ""
 		self.authdialog.hide()
-		interop.socket = interop.createSocket formdata.username.value,formdata.password.value
+		interop.createSocket formdata.username.value,formdata.password.value
 
 	return
 
 window.interface = new InterfaceViewModel()
-
+wordComplete = null
+lastIndex = 0
 $(document).ready () ->
 	ko.applyBindings window.interface
 	$.get "/useAuth", (data) ->
-		console.log(data)
 		if data == "true"
 			window.interface.AuthDialog()
 		else 
 			interop.createSocket()
-	$('#autherr').on 'uk.modal.hide', () -> location.reload()
+	$("#autherr").on 'uk.modal.hide', () -> location.reload()
+	$("#inputbarcont").on "keydown", '#inputbar', (e) ->
+		keyCode = e.keyCode || e.which; 
+		if keyCode == 9
+			words = $("#inputbar").val().split " "
+			wordComplete = words[words.length-1] if wordComplete == null
+			users = window.interface.channelUsers().filter (elem) ->
+				elem.nick().toLowerCase().indexOf(wordComplete.toLowerCase()) == 0
+			lastIndex = 0 if lastIndex >= users.length
+			words[words.length-1] = users[lastIndex].nick()
+			lastIndex++
+			$("#inputbar").val words.join " "
+			e.preventDefault()
+		else
+			wordComplete = null if wordComplete != null

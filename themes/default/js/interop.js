@@ -65,7 +65,7 @@
     socket.on('disconnected', function(data) {
       return window["interface"].addChannelAction("disconnected", data);
     });
-    return socket;
+    return interop.socket = socket;
   };
 
   command = Object.create(null);
