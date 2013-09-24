@@ -1,0 +1,4 @@
+- Queries get reopened if still in buffer (Don't open queries on bufferloading)
+- Pretty heavy on load (Lighten load while bufferloading)
+- Why do I get some errors on unread?!
+- Topics don't show correctly if buffers are full

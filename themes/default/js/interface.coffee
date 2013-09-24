@@ -5,6 +5,8 @@ Channel = (cdata) ->
 	this.unread = ko.observable false
 	this.serverName = cdata.serverName
 	this.mode = ko.observable cdata.mode
+	this.topic = cdata.topic if cdata.topic?
+	this.topicBy = cdata.topicBy if cdata.topicBy?
 	return
 
 User = (nick,val) ->
@@ -99,14 +101,14 @@ InterfaceViewModel = () ->
 			omitnick = true if m[m.length - 1].user is data.nickname
 		# Push message to the list
 		msgs[data.network+"."+data.channel].push { type:"message", shownick: !omitnick?, user: data.nickname, message: self.processMessage(data.message), timestamp: formatTime data.time }
-		curnet = self.currentNetwork()
-		curchan = self.currentChannel()
-		if data.network isnt curnet or data.channel isnt curchan and not nets[data.network].chans[data.channel].unread()
-			nets[data.network].chans[data.channel].unread true
 		self.networks nets
 		self.messages msgs
-		# Scroll message list
-		scrollBottom()
+
+		return if self.bufferMode
+		if data.network isnt self.currentNetwork() or data.channel isnt self.currentChannel() and not nets[data.network].chans[data.channel].unread()
+			nets[data.network].chans[data.channel].unread true
+		else
+			scrollBottom()
 
 	# Add notice to list
 	self.addNotice = (data) ->

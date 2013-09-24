@@ -9,6 +9,12 @@
     this.unread = ko.observable(false);
     this.serverName = cdata.serverName;
     this.mode = ko.observable(cdata.mode);
+    if (cdata.topic != null) {
+      this.topic = cdata.topic;
+    }
+    if (cdata.topicBy != null) {
+      this.topicBy = cdata.topicBy;
+    }
   };
 
   User = function(nick, val) {
@@ -109,7 +115,7 @@
       }
     };
     self.addMessage = function(data) {
-      var curchan, curnet, m, msgs, nets, omitnick;
+      var m, msgs, nets, omitnick;
       msgs = self.messages();
       nets = self.networks();
       if (data.channel === self.netNickname(data.network)) {
@@ -139,14 +145,16 @@
         message: self.processMessage(data.message),
         timestamp: formatTime(data.time)
       });
-      curnet = self.currentNetwork();
-      curchan = self.currentChannel();
-      if (data.network !== curnet || data.channel !== curchan && !nets[data.network].chans[data.channel].unread()) {
-        nets[data.network].chans[data.channel].unread(true);
-      }
       self.networks(nets);
       self.messages(msgs);
-      return scrollBottom();
+      if (self.bufferMode) {
+        return;
+      }
+      if (data.network !== self.currentNetwork() || data.channel !== self.currentChannel() && !nets[data.network].chans[data.channel].unread()) {
+        return nets[data.network].chans[data.channel].unread(true);
+      } else {
+        return scrollBottom();
+      }
     };
     self.addNotice = function(data) {
       var curchan, curnet, msgs;

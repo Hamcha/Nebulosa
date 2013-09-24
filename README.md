@@ -13,7 +13,7 @@ Its architecture provides:
 - A completely customizable HTML5 User Interface
 - Remote access from any compatible device.. just host Nebulosa on a server and connect to it.
   - As such, Nebulosa can act as a BNC
-- Coffeescript and Javascript "scripts" enable for automation and new features (kinda like mIRC "remotes")
+- Coffeescript and Javascript scripts enable for automation and new features (kinda like mIRC "remotes")
 
 ### What's missing
 
