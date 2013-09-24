@@ -452,8 +452,8 @@
       if (nets[data.network].chans[data.channel] == null) {
         return;
       }
-      nets[data.network].chans[data.channel].topic(data.topic);
-      nets[data.network].chans[data.channel].topicBy(data.nickname);
+      nets[data.network].chans[data.channel].topic = data.topic;
+      nets[data.network].chans[data.channel].topicBy = data.nickname;
       self.networks(nets);
       msgs = self.messages();
       if (msgs[data.network + "." + data.channel] == null) {

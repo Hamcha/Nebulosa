@@ -38,7 +38,7 @@ InterfaceViewModel = () ->
 			# Put chans on array structure
 			for cname, cval of network.chans
 				cval.id = cname
-				cval.unread()
+				cval.unread() # Fix because Knockout.js is retarded
 				tnet.chans.push cval
 				# Prepare userlist
 				uchan = []
@@ -328,8 +328,8 @@ InterfaceViewModel = () ->
 	self.setTopic = (data) ->
 		nets = self.networks()
 		return unless nets[data.network].chans[data.channel]?
-		nets[data.network].chans[data.channel].topic data.topic
-		nets[data.network].chans[data.channel].topicBy data.nickname
+		nets[data.network].chans[data.channel].topic = data.topic
+		nets[data.network].chans[data.channel].topicBy = data.nickname
 		self.networks nets
 		# Create message with topic change
 		msgs = self.messages()
