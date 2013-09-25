@@ -21,3 +21,4 @@ Its architecture provides:
 - Message customization options (bold/underline/colors)
 - Script editor and management
 - Proper way to manage channels and networks inside the WebUI
+- package.json for easy dependencies

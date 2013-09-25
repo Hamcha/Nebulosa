@@ -45,13 +45,13 @@
 						<!-- ko if:  $root.currentNetwork() != $parent.id || $root.currentChannel() != key -->
 							<!-- ko if: isquery -->
 						<a data-bind="click: $root.switchTo.bind($data,$parent.id,key,false)">
-							<!-- ko if: unread --><li class="cnew" data-bind="text: key"></li><!-- /ko -->
+							<!-- ko if: unread --><li class="cnew"><span data-bind="text: key"></span><span class="unread uk-badge uk-badge-danger" data-bind="text: unread"></span></li><!-- /ko -->
 							<!-- ko ifnot: unread --><li data-bind="text: key"></li><!-- /ko -->
 						</a>
 							<!-- /ko -->
 							<!-- ko ifnot: isquery -->
 						<a data-bind="click: $root.switchTo.bind($data,$parent.id,key,true)">
-							<!-- ko if: unread --><li class="cnew" data-bind="text: key"></li><!-- /ko -->
+							<!-- ko if: unread --><li class="cnew"><span data-bind="text: key"></span><span class="unread uk-badge uk-badge-danger" data-bind="text: unread"></span></li><!-- /ko -->
 							<!-- ko ifnot: unread --><li data-bind="text: key"></li><!-- /ko -->
 						</a>
 							<!-- /ko -->

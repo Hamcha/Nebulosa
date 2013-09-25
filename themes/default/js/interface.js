@@ -6,7 +6,7 @@
     this.created = cdata.created;
     this.key = cdata.key;
     this.isquery = false;
-    this.unread = ko.observable(false);
+    this.unread = ko.observable(0);
     this.serverName = cdata.serverName;
     this.mode = ko.observable(cdata.mode);
     if (cdata.topic != null) {
@@ -119,7 +119,7 @@
       msgs = self.messages();
       nets = self.networks();
       if (data.channel === self.netNickname(data.network)) {
-        if (nets[data.network].chans[data.nickname] == null) {
+        if ((nets[data.network].chans[data.nickname] == null) && !self.bufferMode) {
           nets[data.network].chans[data.nickname] = new Channel({
             key: data.nickname,
             id: data.nickname
@@ -150,8 +150,8 @@
       if (self.bufferMode) {
         return;
       }
-      if (data.network !== self.currentNetwork() || data.channel !== self.currentChannel() && !nets[data.network].chans[data.channel].unread()) {
-        return nets[data.network].chans[data.channel].unread(true);
+      if (data.network !== self.currentNetwork() || data.channel !== self.currentChannel()) {
+        return nets[data.network].chans[data.channel].unread(nets[data.network].chans[data.channel].unread() + 1);
       } else {
         return scrollBottom();
       }
@@ -391,6 +391,9 @@
         }
       } else {
         message = message.replace(/^\/\//, "/");
+        if (message === "") {
+          return;
+        }
         interop.socket.emit("message", {
           network: tonet,
           channel: tochn,
@@ -425,7 +428,7 @@
       self.currentChannel(channel);
       scrollBottom();
       nets = self.networks();
-      nets[network].chans[channel].unread(false);
+      nets[network].chans[channel].unread(0);
       return self.networks(nets);
     };
     self.updateChannelInfo = function(data) {

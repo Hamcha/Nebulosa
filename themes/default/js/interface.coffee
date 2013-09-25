@@ -2,7 +2,7 @@ Channel = (cdata) ->
 	this.created = cdata.created
 	this.key = cdata.key
 	this.isquery = false
-	this.unread = ko.observable false
+	this.unread = ko.observable 0
 	this.serverName = cdata.serverName
 	this.mode = ko.observable cdata.mode
 	this.topic = cdata.topic if cdata.topic?
@@ -86,14 +86,14 @@ InterfaceViewModel = () ->
 	self.addMessage = (data) ->
 		msgs = self.messages()
 		nets = self.networks()
-		# Is a query and it's not created? Create it already!
 		if data.channel is self.netNickname(data.network)
-			if !nets[data.network].chans[data.nickname]?
+			# Is a query and it's not created? Create it already!
+			if not nets[data.network].chans[data.nickname]? and not self.bufferMode
 				nets[data.network].chans[data.nickname] = new Channel {key: data.nickname, id: data.nickname}
 				nets[data.network].chans[data.nickname].isquery = true
 				self.networks nets
 			data.channel = data.nickname
-		if !msgs[data.network+"."+data.channel]?
+		if not msgs[data.network+"."+data.channel]?
 			msgs[data.network+"."+data.channel] = []
 		# Get last message author (for omission)
 		m = msgs[data.network+"."+data.channel]
@@ -105,8 +105,8 @@ InterfaceViewModel = () ->
 		self.messages msgs
 
 		return if self.bufferMode
-		if data.network isnt self.currentNetwork() or data.channel isnt self.currentChannel() and not nets[data.network].chans[data.channel].unread()
-			nets[data.network].chans[data.channel].unread true
+		if data.network isnt self.currentNetwork() or data.channel isnt self.currentChannel()
+			nets[data.network].chans[data.channel].unread nets[data.network].chans[data.channel].unread() + 1
 		else
 			scrollBottom()
 
@@ -276,6 +276,7 @@ InterfaceViewModel = () ->
 		else
 			# Replace initial // with /
 			message = message.replace(/^\/\//,"/")
+			return if message == "" # Can't send empty messages
 			# Not a command, so send the message to Nebulosa
 			interop.socket.emit "message", { network: tonet, channel: tochn, message: message, nickname: curnick }
 			# Add the message to the list (client-side stuff)
@@ -301,7 +302,7 @@ InterfaceViewModel = () ->
 		scrollBottom()
 		# Remove unread state
 		nets = self.networks()
-		nets[network].chans[channel].unread false
+		nets[network].chans[channel].unread 0
 		self.networks nets
 
 	# Update channel info

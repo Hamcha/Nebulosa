@@ -84,7 +84,8 @@ a {
   border: 1px solid #ccc;
   margin: 2px;
   padding: 2px 5px;
-  color: #666; }
+  color: #666;
+  padding-right: 2px; }
   .chanlist > li > a:hover, .sublist a li:hover {
     border-color: #39f;
     cursor: pointer;
@@ -115,6 +116,11 @@ a {
 .chanlist > li > a {
   padding: 5px;
   line-height: 2em; }
+
+.unread {
+  float: right;
+  margin: 0;
+  padding: 3px 5px; }
 
 .username {
   display: table-cell;
