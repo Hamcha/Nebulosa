@@ -58,7 +58,7 @@ InterfaceViewModel = () ->
 		return ulist
 
 	# Get the activity for the active channel
-	self.channelActivity = ko.computed () -> self.messages()[self.currentNetwork()+"."+self.currentChannel()].slice -50
+	self.channelActivity = ko.computed () -> self.messages()[self.currentNetwork()+"."+self.currentChannel()].slice -50 if self.messages()[self.currentNetwork()+"."+self.currentChannel()]?
 
 	# Get the user list for the active channel
 	self.currentTopic = ko.computed () ->
