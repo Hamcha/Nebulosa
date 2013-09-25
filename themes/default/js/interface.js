@@ -73,7 +73,7 @@
       return ulist;
     });
     self.channelActivity = ko.computed(function() {
-      return self.messages()[self.currentNetwork() + "." + self.currentChannel()];
+      return self.messages()[self.currentNetwork() + "." + self.currentChannel()].slice(-50);
     });
     self.currentTopic = ko.computed(function() {
       var curchan, curnet, nets, tnick, topic;
