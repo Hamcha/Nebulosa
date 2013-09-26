@@ -1,5 +1,5 @@
 <p style="font-size:1.5em; font-weight: 400; color: #aaa;">- 
-{% for cpage in site.pages %}
+{% for cpage in site.pages sort_by:url order:ascending %}
 {% if cpage.title != "Welcome to Nebulosa" %}
 {% if page.title == cpage.title %}
 <span class="active">{{ cpage.title }}</span> -
