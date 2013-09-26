@@ -156,13 +156,14 @@
       channel: chan,
       message: msg
     });
-    return window["interface"].addMessage({
+    window["interface"].addMessage({
       network: net,
       nickname: nick,
       channel: chan,
       message: msg,
       time: +(new Date)
     });
+    return window["interface"].messageBar("");
   };
 
   command.notice = function(net, chan, nick, args) {
@@ -178,12 +179,56 @@
       channel: chan,
       message: msg
     });
-    return window["interface"].addNotice({
+    window["interface"].addNotice({
       network: net,
       nickname: nick,
       channel: chan,
       message: msg,
       time: +(new Date)
+    });
+    return window["interface"].messageBar("");
+  };
+
+  command.topic = function(net, chan, nick, args) {
+    var msg;
+    if (args.length < 2) {
+      return false;
+    }
+    chan = args.splice(0, 1);
+    msg = args.join(" ");
+    return socket.emit("topic", {
+      network: net,
+      nickname: nick,
+      channel: chan,
+      topic: msg
+    });
+  };
+
+  command.mode = function(net, chan, nick, args) {
+    var what, who;
+    if (args.length < 2) {
+      return false;
+    }
+    chan = args.splice(0, 1);
+    what = args.splice(0, 1);
+    who = args.join(" ");
+    console.log(who);
+    return socket.emit("mode", {
+      network: net,
+      nickname: nick,
+      channel: chan,
+      what: what,
+      args: who
+    });
+  };
+
+  command.raw = function(net, chan, nick, args) {
+    if (args.length < 1) {
+      return false;
+    }
+    return socket.emit("raw", {
+      network: net,
+      args: args
     });
   };
 

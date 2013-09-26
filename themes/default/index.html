@@ -25,7 +25,7 @@
 				<ul class="uk-navbar-nav">
 				</ul>
 				<!-- ko if: currentTopic -->
-				<div class="topic uk-animation-fade" data-bind="with: currentTopic">
+				<div class="topic" data-bind="with: currentTopic">
 					<span data-bind="text: topic">Topic here</span> <span class="author">set by <span data-bind="text: topicBy">Author</span></span>
 				</div>
 				<!-- /ko -->
@@ -67,7 +67,7 @@
 			<ul id="chatmessages" class="uk-list uk-list-striped uk-vertical-align-bottom" data-bind="foreach: channelActivity">
 				<li style="position:relative;">
 					<!-- ko if: type == "message" -->
-					<div style="display: table-row;" class="uk-animation-fade">
+					<div style="display: table-row;">
 						<!-- ko if: shownick -->
 
 						<div class="username" data-bind="text: user, style: { color: colorNick(user) }"></div> 
@@ -79,24 +79,24 @@
 					</div>
 					<!-- /ko -->
 					<!-- ko if: type == "chaction" -->
-					<div class="chaction uk-animation-fade">
+					<div class="chaction">
 						<div data-bind="html: message">Message</div>
 						<div class="timestamp" data-bind="text: timestamp"></div>
 					</div>
 					<!-- /ko -->
 					<!-- ko if: type == "notice" -->
-					<div class="notice uk-animation-fade">
+					<div class="notice">
 						NOTICE (<b data-bind="text: user">User</b> &#8594; <b data-bind="text: channel">Chan</b>) : <span data-bind="html: message">Message</span>
 						<div class="timestamp" data-bind="text: timestamp"></div>
 					</div>
 					<!-- /ko -->
 					<!-- ko if: type == "error" -->
-					<div class="error uk-animation-fade">
+					<div class="error">
 						<b>ERROR : <span data-bind="text: message">Message</span></b>
 					</div>
 					<!-- /ko -->
 					<!-- ko if: type == "whois" -->
-					<div class="whoiscont uk-animation-fade">
+					<div class="whoiscont">
 						<b>Whois on <span data-bind="text: nickname">Nickname</span></b>
 						<ul data-bind="foreach: info">
 							<li><span data-bind="html: $data"></span></li>

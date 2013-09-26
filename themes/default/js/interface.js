@@ -266,10 +266,10 @@
             chan = channels[_j];
             indexChan = data.network + "." + chan;
             indexUser = filterSingle(ulist[indexChan], function(x) {
-              return x.nick === data.nickname;
+              return x.nick() === data.nickname;
             });
-            if (indexUser > 0) {
-              ulist[indexChan].splice(indexUser, 1);
+            if (indexUser.id >= 0) {
+              ulist[indexChan].splice(indexUser.id, 1);
             }
             self.userlist(ulist);
           }
@@ -429,9 +429,11 @@
       self.currentNetwork(network);
       self.currentChannel(channel);
       scrollBottom();
-      nets = self.networks();
-      nets[network].chans[channel].unread(0);
-      return self.networks(nets);
+      if (channel !== ":status") {
+        nets = self.networks();
+        nets[network].chans[channel].unread(0);
+        return self.networks(nets);
+      }
     };
     self.updateChannelInfo = function(data) {
       var nets;

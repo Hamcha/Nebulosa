@@ -66,6 +66,7 @@ command.msg = (net,chan,nick,args) ->
 	msg = args.join " "
 	socket.emit "message", { network: net, nickname: nick, channel: chan, message: msg }
 	window.interface.addMessage { network: net, nickname: nick, channel: chan, message: msg, time: +new Date }
+	window.interface.messageBar ""
 
 command.notice = (net,chan,nick,args) ->
 	return false if args.length < 2
@@ -73,6 +74,25 @@ command.notice = (net,chan,nick,args) ->
 	msg = args.join " "
 	socket.emit "notice", { network: net, nickname: nick, channel: chan, message: msg }
 	window.interface.addNotice { network: net, nickname: nick, channel: chan, message: msg, time: +new Date }
+	window.interface.messageBar ""
+
+command.topic = (net,chan,nick,args) ->
+	return false if args.length < 2
+	chan = args.splice 0,1
+	msg = args.join " "
+	socket.emit "topic", { network: net, nickname: nick, channel: chan, topic: msg }
+
+command.mode = (net,chan,nick,args) ->
+	return false if args.length < 2
+	chan = args.splice 0,1
+	what = args.splice 0,1
+	who = args.join " "
+	console.log who
+	socket.emit "mode", { network: net, nickname: nick, channel: chan, what:what, args:who }
+
+command.raw = (net,chan,nick,args) ->
+	return false if args.length < 1
+	socket.emit "raw", { network: net, args:args }
 
 window.interop =
 	createSocket : createSocket

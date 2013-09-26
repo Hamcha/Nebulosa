@@ -182,8 +182,8 @@ InterfaceViewModel = () ->
 					channels = data.channels
 				for chan in channels
 					indexChan = data.network+"."+chan
-					indexUser = filterSingle ulist[indexChan], (x) -> x.nick == data.nickname
-					ulist[indexChan].splice indexUser, 1 if indexUser > 0
+					indexUser = filterSingle ulist[indexChan], (x) -> x.nick() == data.nickname
+					ulist[indexChan].splice indexUser.id, 1 if indexUser.id >= 0
 					self.userlist ulist
 			when "mode"
 				data.argument = ifval data.argument, ""
@@ -300,10 +300,11 @@ InterfaceViewModel = () ->
 		self.currentNetwork network
 		self.currentChannel channel
 		scrollBottom()
-		# Remove unread state
-		nets = self.networks()
-		nets[network].chans[channel].unread 0
-		self.networks nets
+		if channel != ":status"
+			# Remove unread state
+			nets = self.networks()
+			nets[network].chans[channel].unread 0
+			self.networks nets
 
 	# Update channel info
 	self.updateChannelInfo = (data) ->
