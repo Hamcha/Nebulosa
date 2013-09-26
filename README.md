@@ -22,3 +22,4 @@ Its architecture provides:
 - Script editor and management
 - Proper way to manage channels and networks inside the WebUI
 - Log browsing (blogstyle scrolling.. but in reverse)
+- Localhost-only bindings

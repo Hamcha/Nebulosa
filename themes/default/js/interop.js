@@ -104,16 +104,18 @@
   };
 
   command.kick = function(net, chan, nick, args) {
-    var reas;
-    if (args[1] == null) {
+    var reas, who;
+    if (args.length < 2) {
       return false;
     }
-    reas = ifval(args[2], args[1]);
+    chan = args.splice(0, 1);
+    who = args.splice(0, 1);
+    reas = ifval(args.join(" ", who));
     return socket.emit("kick", {
       network: net,
       nickname: nick,
-      channel: args[0],
-      nick: args[1],
+      channel: chan,
+      nick: who,
       message: reas
     });
   };

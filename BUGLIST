@@ -1,2 +1,3 @@
 - Modes don't clear list sometimes
 - Modes don't work client-side (on users)
+- Private messages don't clear bar (AGAIN?!)

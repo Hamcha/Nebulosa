@@ -49,9 +49,11 @@ command.nick = (net,chan,nick,args) ->
 	socket.emit "nick", { network: net, nickname: nick, newnick: args[0], channels: chanlist }
 
 command.kick = (net,chan,nick,args) ->
-	return false unless args[1]?
-	reas = ifval args[2], args[1]
-	socket.emit "kick", { network: net, nickname: nick, channel: args[0], nick:args[1], message:reas }
+	return false if args.length < 2
+	chan = args.splice 0,1
+	who = args.splice 0,1
+	reas = ifval args.join " ", who
+	socket.emit "kick", { network: net, nickname: nick, channel:chan, nick:who, message:reas }
 
 command.whois = (net,chan,nick,args) ->
 	return false unless args[0]?
