@@ -6,7 +6,8 @@
     "connect": "*",
     "irc": "Hamcha/node-irc",
     "socket.io": "0.9.x",
-    "event-proxy": "*"
+    "event-proxy": "*",
+    "cookie": "*"
   },
   "engines": {
     "node": "0.10.x",

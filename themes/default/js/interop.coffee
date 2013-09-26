@@ -1,10 +1,14 @@
 socket = undefined
 
 createSocket = (user,pass) ->
-	tryAuth = user? and pass?
-	socket = io.connect 'http://'+location.host, { query: "user="+user+"&pass="+pass }
+	document.cookie = "user="+user
+	document.cookie = "pass="+pass
+	socket = io.connect 'http://'+location.host
 	socket.on 'error', (data) ->
 		if data == "handshake unauthorized"
+			# Expire both cookies
+			document.cookie = "user=; expires=Thu, 01 Jan 1970 00:00:01 GMT;"
+			document.cookie = "pass=; expires=Thu, 01 Jan 1970 00:00:01 GMT;"
 			window.interface.AuthError()
 		else
 			window.interface.Exception "Connection has been lost..", true
@@ -87,7 +91,6 @@ command.mode = (net,chan,nick,args) ->
 	chan = args.splice 0,1
 	what = args.splice 0,1
 	who = args.join " "
-	console.log who
 	socket.emit "mode", { network: net, nickname: nick, channel: chan, what:what, args:who }
 
 command.raw = (net,chan,nick,args) ->

@@ -7,6 +7,7 @@ global.connect 	= require "connect"
 global.irc		= require "irc"
 global.ircsrv	= require "./chat"
 global.buffer   = require "./buffer"
+global.cookie   = require "cookie"
 
 # Fallback if selected theme doesn't exist
 if not fs.existsSync "themes/"+config.webconf.theme
@@ -25,8 +26,17 @@ global.io = socketio.listen wsrv, { log: false }
 
 if useAuth
 	io.set 'authorization', (handshakeData, cb) ->
-		if handshakeData.query.user? and handshakeData.query.user is config.webconf.username and handshakeData.query.pass? and  handshakeData.query.pass is config.webconf.password
-			return cb null, true
+		user = pass = ""
+		if handshakeData.headers.cookie
+			cookieData = cookie.parse handshakeData.headers.cookie
+			return cb null, false unless cookieData.user? and cookieData.pass?
+			user = cookieData.user
+			pass = cookieData.pass
+		else
+			return cb null, false unless handshakeData.query.user? and handshakeData.query.pass?
+			user = handshakeData.query.user
+			pass = handshakeData.query.pass
+		return cb null, true if user is config.webconf.username and pass is config.webconf.password
 		cb null, false
 # Start IRC Client
 ircsrv.start()

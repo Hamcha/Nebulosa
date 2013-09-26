@@ -5,13 +5,13 @@
   socket = void 0;
 
   createSocket = function(user, pass) {
-    var tryAuth;
-    tryAuth = (user != null) && (pass != null);
-    socket = io.connect('http://' + location.host, {
-      query: "user=" + user + "&pass=" + pass
-    });
+    document.cookie = "user=" + user;
+    document.cookie = "pass=" + pass;
+    socket = io.connect('http://' + location.host);
     socket.on('error', function(data) {
       if (data === "handshake unauthorized") {
+        document.cookie = "user=; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+        document.cookie = "pass=; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
         return window["interface"].AuthError();
       } else {
         return window["interface"].Exception("Connection has been lost..", true);
@@ -212,7 +212,6 @@
     chan = args.splice(0, 1);
     what = args.splice(0, 1);
     who = args.join(" ");
-    console.log(who);
     return socket.emit("mode", {
       network: net,
       nickname: nick,

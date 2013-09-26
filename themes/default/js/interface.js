@@ -555,11 +555,23 @@
       return modal.show();
     };
     self.AuthDialog = function() {
+      var pass, user;
       if (self.authdialog == null) {
         self.authdialog = new $.UIkit.modal.Modal("#authdlg");
       }
       self.authdialog.options.bgclose = self.authdialog.options.keyboard = false;
       self.authdialog.show();
+      user = document.cookie.replace(/(?:(?:^|.*;\s*)user\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+      pass = document.cookie.replace(/(?:(?:^|.*;\s*)pass\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+      if (!(user !== "" || pass !== "")) {
+        $("#autocred").hide();
+      }
+      if (user !== "") {
+        $("#userauth").val(user);
+      }
+      if (pass !== "") {
+        $("#pwdauth").val(pass);
+      }
       return $("#userauth").focus();
     };
     self.auth = function(formdata) {

@@ -388,6 +388,11 @@ InterfaceViewModel = () ->
 		self.authdialog = new $.UIkit.modal.Modal "#authdlg" unless self.authdialog?
 		self.authdialog.options.bgclose = self.authdialog.options.keyboard = false
 		self.authdialog.show()
+		user = document.cookie.replace(/(?:(?:^|.*;\s*)user\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+		pass = document.cookie.replace(/(?:(?:^|.*;\s*)pass\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+		$("#autocred").hide() unless user isnt "" or pass isnt ""
+		$("#userauth").val user if user isnt ""
+		$("#pwdauth").val pass if pass isnt ""
 		$("#userauth").focus()
 
 	self.auth = (formdata) ->

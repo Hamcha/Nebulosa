@@ -17,8 +17,8 @@ Its architecture provides:
 
 ### What's missing
 
-- Implementation of all commands (WebInterface)
+- Implementation of all commands (WebUI)
 - Message customization options (bold/underline/colors)
 - Script editor and management
 - Proper way to manage channels and networks inside the WebUI
-- package.json for easy dependencies
+- Log browsing (blogstyle scrolling.. but in reverse)
