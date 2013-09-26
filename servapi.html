@@ -1,0 +1,247 @@
+---
+layout: page
+title: API
+---
+
+<div id="content">
+<p>This page is pretty long, here's some anchor links to help you:<br />
+ - <a href="#make">Make your own Nebulosa client</a><br />
+ - <a href="#auth">Authentication</a><br />
+ - <a href="#events">Events</a><br />
+</p>
+<a name="make"><h2>Make your own Nebulosa client</h2></a>
+<p>Using a Server/Client architecture, Nebulosa is very flexible when it comes to abstraction.</p>
+<p>If you don't like the default Web Interface.. no problem, you can create your own theme or even your separated client!</p>
+<p>All you need to create a client is a working Socket.IO client library, you can find a list of libraries for various well-known programming languages by <a href="https://github.com/learnboost/socket.io/wiki#in-other-languages">clicking here</a>.</p>
+
+<a name="auth"><h2>Authentication</h2></a>
+<p>Nebulosa server can be protected and Socket.IO will require you to provide username and password if needed.</p>
+<p>The only way to know beforehand if it's going to require credentials is to do a GET request to <m>/useAuth</m> which will return either <m>true</m> or <m>false</m> if either authentication is enabled or not.</p>
+<p>Credentials are provided when establishing a connection, the main (and secure) way to provide credentials is through the Cookie HTTP Header.<br />Just set <b>Cookie</b> to "<m>user=&lt;Username&gt;&amp;pass=&lt;Password&gt;</m>" in the connection request and you're good to go. You will receive an "<m>handshake unauthorized</m>" error if you didn't provide credential or if they were wrong.</p>
+<p>If you can't access Cookies for some reason you can fallback to querystrings, as usual, set "<m>user=&lt;Username&gt;&amp;pass=&lt;Password&gt;</m>" as the connection querystring and you'll receive an error if the credentials are wrong</p>
+
+<a name="events"><h2>Events</h2></a>
+<p>You will receive various type of events depending on what happens. I will refer to the passed data (which is usually an Object) as <m>Object</m></p>
+
+<p><k>networks</k>
+Received when connected, it contains all the network/channel/user data in the following structure:
+<pre><code>Object = { 
+	network1: Network, 
+	network2: Network,
+	...
+}
+
+Network = { 
+	nickname: "YourNickname", 
+	name: "Network Name", 
+	chans: [Channel, Channel, Channel, ...]
+}
+
+Channel = { 
+	users: [User, User, User, ...], 
+	created: "UnixTime",
+	key :"#channelname",
+	mode : "+modes",
+	topic : "Channel Topic", // May be missing if not set
+	topicBy : "Username",    // May be missing if not set
+}
+
+User = {
+	"Username" : "@",    // User Mode (symbol)
+	"AnotherUser" : "%+" // May have multiple modes
+}
+</code></pre>
+</p>
+
+<p><k>buffers</k>
+<m>Object</m> can be either <m>true</m> or <m>false</m>, it indicates if the following messages are from buffers (last X lines of channels and queries) or new messages.
+</p>
+
+<p><k>join</k>
+Sent on user join (or if the client joined a channel).
+<pre><code>Object = {
+	network: "networkid", // Network joined
+	channel: "#channel",  // Channel joined
+	nickname: "Nickname", // Who joined
+	time: Date            // When it happened
+}
+</code></pre>
+</p>
+
+<p><k>part</k>
+Sent on user part (or if the client left a channel).
+<pre><code>Object = {
+	network: "networkid", // Network
+	channel: "#channel",  // Channel
+	nickname: "Nickname", // Who left
+	message: "something", // Part message, if provided
+	time: Date            // When it happened
+}
+</code></pre>
+</p>
+
+<p><k>message</k>
+Sent on user message.
+<pre><code>Object = {
+	network: "networkid", // Network
+	channel: "#channel",  // Channel
+	nickname: "Nickname", // Who said it
+	message: "something", // Message
+	time: Date            // When it happened
+}
+</code></pre>
+</p>
+
+<p><k>names</k>
+Response from server "NAMES" command.
+<pre><code>Object = {
+	network: "networkid",     // Network
+	channel: "#channel",      // Channel
+	nicks: [User, User, ...], // Users in the channel
+	time: Date                // When it happened
+}
+</code></pre>
+</p>
+
+<p><k>topic</k>
+Sent when the topic gets changed.
+<pre><code>Object = {
+	network: "networkid",// Network
+	channel: "#channel", // Channel
+	nickname: "Nickname",// Who changed the topic
+	topic: "something",  // New topic
+	time: Date           // When it happened
+}
+</code></pre>
+</p>
+
+<p><k>quit</k>
+Sent when someone quits IRC.
+<pre><code>Object = {
+	network: "networkid",                // Network
+	channels: ["#chan1", "#chan2", ...], // Common channels
+	nickname: "Nickname",                // Who left
+	reason: "something",                 // Quit message
+	time: Date                           // When it happened
+}
+</code></pre>
+</p>
+
+<p><k>kick</k>
+Sent when someone gets kicked.
+<pre><code>Object = {
+	network: "networkid", // Network
+	channel: "#channel",  // Channel
+	nickname: "Nickname", // Who's got kicked
+	by: "OtherNickname",  // Who kicked
+	reason: "something",  // Kick Message
+	time: Date            // When it happened
+}
+</code></pre>
+</p>
+
+<p><k>ping</k>
+Sent when pinged (or ponged).
+PONG requests are automatically sent, there is no need to implement them.
+<pre><code>Object = {
+	network: "networkid",    // Network
+	server: "irc.server.net" // Server who sent it
+}
+</code></pre>
+</p>
+
+<p><k>nick</k>
+Sent on nick change.
+<pre><code>Object = {
+	network: "networkid",                // Network
+	channels: ["#chan1", "#chan2", ...], // Common channels
+	oldnick: "OldNickname",              // Original nickname
+	newnick: "NewNickname",              // Changed nickname
+	time: Date                           // When it happened
+}
+</code></pre>
+</p>
+
+<p><k>invite</k>
+Sent when invited to a channel.
+<pre><code>Object = {
+	network: "networkid", // Network
+	channel: "#channel",  // Channel
+	from: "OldNickname",  // Who invited?
+	time: Date            // When it happened
+}
+</code></pre>
+</p>
+
+<p><k>mode</k>
+Sent whenever a mode is added or removed.
+<pre><code>Object = {
+	network: "networkid", // Network
+	channel: "#channel",  // Channel
+	by: "OldNickname",    // Who changed
+	what: "+",            // Either "+" or "-"
+	mode: "o",            // Mode set (single letter)
+	args: "Nickname",     // Argument (ex. who has been opped)
+	time: Date            // When it happened
+}
+</code></pre>
+</p>
+
+<p><k>whois</k>
+Response of "WHOIS" command.
+<pre><code>Object = {
+	network: "networkid", // Network
+	info: WhoisData,      // Data from Whois
+	time: Date            // When it happened
+}
+
+WhoisData = {
+	nick: "MyNick"            // Nickname
+	realname: "My real name"  // Real Name
+	user: "mynick"            // Identd (or User)
+	host: "my.custom.vhost"   // Host
+	channels: ["#chan1", ...],// Channels
+	server: "irc.myserv.com"  // Server
+	serverinfo: "BestServ!"   // Server info
+	idle: 1634                // Idle time (in seconds)
+}
+</code></pre>
+</p>
+
+<p><k>ircerror</k>
+Sent on IRC error (do not confuse with the <m>error</m>, which is a socket.io error)
+<pre><code>Object = {
+	network: "networkid", // Network
+	message: "errormsg",  // Error data
+}
+</code></pre>
+</p>
+
+<p><k>list</k>
+Response from "LIST" command
+<pre><code>Object = {
+	network: "networkid",                  // Network
+	list: [ListChannel, ListChannel, ...]  // Channel list
+}
+
+ListChannel = {
+	name: "#channel" // Channel name
+	users: 20        // How many users it has
+	topic: "MyTopic" // What's the topic
+}
+</code></pre>
+</p>
+
+<p><k>ctcp</k>
+On received CTCP message
+<pre><code>Object = {
+	network: "networkid", // Network
+	from: "Nickname",     // Who sent it
+	to: "Othernick",      // To whom
+	type: "VERSION",      // CTCP type
+	text: "Blahblah",     // CTCP content
+}
+</code></pre>
+</p>
+
+</div>
