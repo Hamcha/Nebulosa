@@ -1,0 +1,7 @@
+<p style="font-size:1.5em; font-weight: 400; color: #aaa;">- 
+{% for page in site.pages %}
+{% if page.title != "Welcome to Nebulosa" %}
+<a href="{{site.baseurl}}{{ page.url }}">{{ page.title }}</a> -
+{% endif %}
+{% endfor %}
+</p>
