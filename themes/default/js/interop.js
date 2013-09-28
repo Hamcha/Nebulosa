@@ -158,14 +158,14 @@
       channel: chan,
       message: msg
     });
-    window["interface"].addMessage({
+    window["interface"].messageBar("");
+    return window["interface"].addMessage({
       network: net,
       nickname: nick,
       channel: chan,
       message: msg,
       time: +(new Date)
     });
-    return window["interface"].messageBar("");
   };
 
   command.notice = function(net, chan, nick, args) {

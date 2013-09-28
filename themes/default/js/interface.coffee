@@ -86,9 +86,9 @@ InterfaceViewModel = () ->
 	self.addMessage = (data) ->
 		msgs = self.messages()
 		nets = self.networks()
-		if data.channel is self.netNickname(data.network)
+		if data.channel is self.netNickname(data.network) or data.channel is data.nickname
 			# Is a query and it's not created? Create it already!
-			if not nets[data.network].chans[data.nickname]? and not self.bufferMode
+			if not nets[data.network].chans[data.nickname]?
 				nets[data.network].chans[data.nickname] = new Channel {key: data.nickname, id: data.nickname}
 				nets[data.network].chans[data.nickname].isquery = true
 				self.networks nets
@@ -104,7 +104,7 @@ InterfaceViewModel = () ->
 		self.networks nets
 		self.messages msgs
 
-		return if self.bufferMode
+		return if self.bufferMode and data.channel is data.nickname
 		if data.network isnt self.currentNetwork() or data.channel isnt self.currentChannel()
 			nets[data.network].chans[data.channel].unread nets[data.network].chans[data.channel].unread() + 1
 		else
@@ -112,13 +112,16 @@ InterfaceViewModel = () ->
 
 	# Add notice to list
 	self.addNotice = (data) ->
-		# Stick notices to active channel
-		curchan = self.currentChannel()
-		curnet = self.currentNetwork()
+		# Stick notices to active channel if same network
+		net = data.network
+		if data.network is self.currentNetwork() and data.nickname isnt "" and servernicks.indexOf(data.nickname.toLowerCase()) < 0 and data.channel isnt "*"
+			chan = self.currentChannel()
+		else
+			chan = ":status"
 		msgs = self.messages()
-		if !msgs[curnet+"."+curchan]?
-			msgs[curnet+"."+curchan] = []
-		msgs[curnet+"."+curchan].push { type:"notice", channel: data.channel, user: data.nickname, message: self.processMessage(data.message), timestamp: formatTime data.time }
+		if !msgs[net+"."+chan]?
+			msgs[net+"."+chan] = []
+		msgs[net+"."+chan].push { type:"notice", channel: data.channel, user: data.nickname, message: self.processMessage(data.message), timestamp: formatTime data.time }
 		self.messages msgs
 		scrollBottom()
 
@@ -404,6 +407,7 @@ InterfaceViewModel = () ->
 
 	return
 
+window.servernicks = ["infoserv", "global"]
 window.interface = new InterfaceViewModel()
 wordComplete = null
 lastIndex = 0
@@ -418,7 +422,7 @@ $(document).ready () ->
 	$("#inputbarcont").on "keydown", '#inputbar', (e) ->
 		keyCode = e.keyCode || e.which; 
 		if keyCode == 9
-			words = window.interface.messageBar().split " "
+			words = $("#inputbar").val().split " "
 			if window.interface.isChannel
 				wordComplete = words[words.length-1] if wordComplete == null
 				users = window.interface.channelUsers().filter (elem) ->

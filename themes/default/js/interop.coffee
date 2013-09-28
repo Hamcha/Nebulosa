@@ -71,8 +71,8 @@ command.msg = (net,chan,nick,args) ->
 	chan = args.splice 0,1
 	msg = args.join " "
 	socket.emit "message", { network: net, nickname: nick, channel: chan, message: msg }
-	window.interface.addMessage { network: net, nickname: nick, channel: chan, message: msg, time: +new Date }
 	window.interface.messageBar ""
+	window.interface.addMessage { network: net, nickname: nick, channel: chan, message: msg, time: +new Date }
 
 command.notice = (net,chan,nick,args) ->
 	return false if args.length < 2

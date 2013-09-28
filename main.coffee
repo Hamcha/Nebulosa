@@ -46,6 +46,8 @@ io.sockets.on 'connection', (socket) ->
 	ircsrv.sendBuffers socket
 	# Proxy all events to the ClientProxy
 	proxy ClientProxy, clientMap, socket, socket
+	socket.on 'disconnect', () ->
+		ircsrv.clearQUB()
 	return
 
 console.log "Webserver listening @ port " + config.webconf.bindport

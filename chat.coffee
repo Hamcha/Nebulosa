@@ -11,7 +11,7 @@ ChatClient.start = () ->
 		ircClient.name = i
 		ircClient.displayName = s.name
 		ircClient.connected = false
-		ircClient.client = new irc.Client s.address, s.nickname, { channels:s.autojoin, realName:s.realname, userName:"nebulosa" }
+		ircClient.client = new irc.Client s.address, s.nickname, { channels:s.autojoin, realName:s.realname, userName:s.nickname, autoRejoin: false }
 		# Proxy all events to the EventProxy
 		proxy EventProxy, eventMap, ircClient.client, ircClient
 		# Put it into the list
@@ -41,6 +41,13 @@ ChatClient.sendBuffers = (socket) ->
 		socket.emit x.type, x.data for x in bufItem
 	# Disable buffer mode
 	socket.emit "buffers", false
+	return
+
+ChatClient.clearQUB = () ->
+	for j,c of buffers when j.indexOf("#") < 0
+		arr = c.get()
+		for x,i in arr when x.type is "message"
+			arr.splice i,1 
 	return
 
 ChatClient.chanInfo = (net, chan) ->

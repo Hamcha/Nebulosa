@@ -120,8 +120,8 @@
       var m, msgs, nets, omitnick;
       msgs = self.messages();
       nets = self.networks();
-      if (data.channel === self.netNickname(data.network)) {
-        if ((nets[data.network].chans[data.nickname] == null) && !self.bufferMode) {
+      if (data.channel === self.netNickname(data.network) || data.channel === data.nickname) {
+        if (nets[data.network].chans[data.nickname] == null) {
           nets[data.network].chans[data.nickname] = new Channel({
             key: data.nickname,
             id: data.nickname
@@ -149,7 +149,7 @@
       });
       self.networks(nets);
       self.messages(msgs);
-      if (self.bufferMode) {
+      if (self.bufferMode && data.channel === data.nickname) {
         return;
       }
       if (data.network !== self.currentNetwork() || data.channel !== self.currentChannel()) {
@@ -159,14 +159,18 @@
       }
     };
     self.addNotice = function(data) {
-      var curchan, curnet, msgs;
-      curchan = self.currentChannel();
-      curnet = self.currentNetwork();
-      msgs = self.messages();
-      if (msgs[curnet + "." + curchan] == null) {
-        msgs[curnet + "." + curchan] = [];
+      var chan, msgs, net;
+      net = data.network;
+      if (data.network === self.currentNetwork() && data.nickname !== "" && servernicks.indexOf(data.nickname.toLowerCase()) < 0 && data.channel !== "*") {
+        chan = self.currentChannel();
+      } else {
+        chan = ":status";
       }
-      msgs[curnet + "." + curchan].push({
+      msgs = self.messages();
+      if (msgs[net + "." + chan] == null) {
+        msgs[net + "." + chan] = [];
+      }
+      msgs[net + "." + chan].push({
         type: "notice",
         channel: data.channel,
         user: data.nickname,
@@ -585,6 +589,8 @@
     };
   };
 
+  window.servernicks = ["infoserv", "global"];
+
   window["interface"] = new InterfaceViewModel();
 
   wordComplete = null;
@@ -607,7 +613,7 @@
       var keyCode, users, words;
       keyCode = e.keyCode || e.which;
       if (keyCode === 9) {
-        words = window["interface"].messageBar().split(" ");
+        words = $("#inputbar").val().split(" ");
         if (window["interface"].isChannel) {
           if (wordComplete === null) {
             wordComplete = words[words.length - 1];
