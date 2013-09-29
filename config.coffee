@@ -29,6 +29,7 @@ servers.template =
 	name     : "Example server"
 	address  : "irc.example.com"
 	nickname : "mynick"					# Default nickname
+	awaynick : ""					 # Nickname when offline
 	realname : "My real name here"		# Real name
 	# Channels to join when connected
 	autojoin : [ "#example", "#coders" ]
@@ -39,6 +40,7 @@ servers.ponychat =
 	name     : "Ponychat"
 	address  : "irc.ponychat.net"
 	nickname : "nebulosa"			 # Default nickname
+	awaynick : "nebu`OFF"			 # Nickname when offline
 	realname : "Nebulosa IRC Client" # Real name
 	# Channels to join when connected
 	autojoin : [ "#testbass", "#testbass2" ]
@@ -47,6 +49,7 @@ servers.rizon =
 	name     : "Rizon"
 	address  : "irc.rizon.net"
 	nickname : "nebulosa"			 # Default nickname
+	awaynick : "nebu`OFF"			 # Nickname when offline
 	realname : "Nebulosa IRC Client" # Real name
 	# Channels to join when connected
 	autojoin : [ "#brls" ]

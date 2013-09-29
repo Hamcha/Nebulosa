@@ -114,8 +114,8 @@
     return socket.emit("kick", {
       network: net,
       nickname: nick,
-      channel: chan,
-      nick: who,
+      channel: chan.toString(),
+      nick: who.toString(),
       message: reas
     });
   };
@@ -155,14 +155,14 @@
     socket.emit("message", {
       network: net,
       nickname: nick,
-      channel: chan,
+      channel: chan.toString(),
       message: msg
     });
     window["interface"].messageBar("");
     return window["interface"].addMessage({
       network: net,
       nickname: nick,
-      channel: chan,
+      channel: chan.toString(),
       message: msg,
       time: +(new Date)
     });
@@ -178,13 +178,13 @@
     socket.emit("notice", {
       network: net,
       nickname: nick,
-      channel: chan,
+      channel: chan.toString(),
       message: msg
     });
     window["interface"].addNotice({
       network: net,
       nickname: nick,
-      channel: chan,
+      channel: chan.toString(),
       message: msg,
       time: +(new Date)
     });
@@ -201,7 +201,7 @@
     return socket.emit("topic", {
       network: net,
       nickname: nick,
-      channel: chan,
+      channel: chan.toString(),
       topic: msg
     });
   };
@@ -213,13 +213,15 @@
     }
     chan = args.splice(0, 1);
     what = args.splice(0, 1);
-    who = args.join(" ");
+    if (args.length > 0) {
+      who = args.join(" ");
+    }
     return socket.emit("mode", {
       network: net,
       nickname: nick,
-      channel: chan,
+      channel: chan.toString(),
       what: what,
-      args: who
+      who: who
     });
   };
 

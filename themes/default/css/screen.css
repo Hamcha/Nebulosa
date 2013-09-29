@@ -81,6 +81,9 @@ a {
   padding-left: 10px; }
 
 .chanlist > li > a, .sublist a li {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   border: 1px solid #ccc;
   margin: 2px;
   padding: 2px 5px;

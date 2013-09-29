@@ -53,7 +53,7 @@ command.kick = (net,chan,nick,args) ->
 	chan = args.splice 0,1
 	who = args.splice 0,1
 	reas = ifval args.join " ", who
-	socket.emit "kick", { network: net, nickname: nick, channel:chan, nick:who, message:reas }
+	socket.emit "kick", { network: net, nickname: nick, channel:chan.toString(), nick:who.toString(), message:reas }
 
 command.whois = (net,chan,nick,args) ->
 	return false unless args[0]?
@@ -70,30 +70,30 @@ command.msg = (net,chan,nick,args) ->
 	return false if args.length < 2
 	chan = args.splice 0,1
 	msg = args.join " "
-	socket.emit "message", { network: net, nickname: nick, channel: chan, message: msg }
+	socket.emit "message", { network: net, nickname: nick, channel: chan.toString(), message: msg }
 	window.interface.messageBar ""
-	window.interface.addMessage { network: net, nickname: nick, channel: chan, message: msg, time: +new Date }
+	window.interface.addMessage { network: net, nickname: nick, channel: chan.toString(), message: msg, time: +new Date }
 
 command.notice = (net,chan,nick,args) ->
 	return false if args.length < 2
 	chan = args.splice 0,1
 	msg = args.join " "
-	socket.emit "notice", { network: net, nickname: nick, channel: chan, message: msg }
-	window.interface.addNotice { network: net, nickname: nick, channel: chan, message: msg, time: +new Date }
+	socket.emit "notice", { network: net, nickname: nick, channel: chan.toString(), message: msg }
+	window.interface.addNotice { network: net, nickname: nick, channel: chan.toString(), message: msg, time: +new Date }
 	window.interface.messageBar ""
 
 command.topic = (net,chan,nick,args) ->
 	return false if args.length < 2
 	chan = args.splice 0,1
 	msg = args.join " "
-	socket.emit "topic", { network: net, nickname: nick, channel: chan, topic: msg }
+	socket.emit "topic", { network: net, nickname: nick, channel: chan.toString(), topic: msg }
 
 command.mode = (net,chan,nick,args) ->
 	return false if args.length < 2
 	chan = args.splice 0,1
 	what = args.splice 0,1
-	who = args.join " "
-	socket.emit "mode", { network: net, nickname: nick, channel: chan, what:what, args:who }
+	who = args.join " " if args.length > 0
+	socket.emit "mode", { network: net, nickname: nick, channel: chan.toString(), what:what, who:who }
 
 command.raw = (net,chan,nick,args) ->
 	return false if args.length < 1

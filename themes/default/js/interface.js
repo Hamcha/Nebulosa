@@ -159,9 +159,9 @@
       }
     };
     self.addNotice = function(data) {
-      var chan, msgs, net;
+      var chan, msgs, net, nets;
       net = data.network;
-      if (data.network === self.currentNetwork() && data.nickname !== "" && servernicks.indexOf(data.nickname.toLowerCase()) < 0 && data.channel !== "*") {
+      if (data.network === self.currentNetwork() && (data.nickname != null) && data.nickname !== "" && servernicks.indexOf(data.nickname.toLowerCase()) < 0 && data.channel !== "*") {
         chan = self.currentChannel();
       } else {
         chan = ":status";
@@ -178,10 +178,14 @@
         timestamp: formatTime(data.time)
       });
       self.messages(msgs);
+      if (chan === ":status") {
+        nets = self.networks();
+        nets[data.network].unread += 1;
+      }
       return scrollBottom();
     };
     self.addChannelAction = function(type, data) {
-      var chan, channels, indexChan, indexUser, msgs, nets, reason, ulist, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2;
+      var chan, channels, indexChan, indexUser, modesym, msgs, nets, reason, uindex, ulist, ustring, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2;
       msgs = self.messages();
       switch (type) {
         case "join":
@@ -279,8 +283,32 @@
           }
           break;
         case "mode":
-          data.argument = ifval(data.argument, "");
           data.by = ifval(data.by, data.network);
+          if ((data.argument != null) && (modeSymbol[data.mode] != null) && !self.bufferMode) {
+            ulist = self.userlist();
+            indexChan = data.network + "." + data.channel;
+            indexUser = filterSingle(ulist[indexChan], function(x) {
+              return x.nick() === data.argument;
+            });
+            if (indexUser.id >= 0) {
+              modesym = modeSymbol[data.mode];
+              ustring = ulist[indexChan][indexUser.id].val();
+              if (data.what === "+") {
+                ustring += modesym;
+                ustring = ustring.split("").sort(self.modeSort).join("");
+              } else {
+                uindex = ustring.indexOf(modesym);
+                if (uindex >= 0) {
+                  ustring.splice(uindex, 1);
+                }
+              }
+              ulist[indexChan][indexUser.id].val(ustring);
+              self.userlist(ulist);
+            }
+          }
+          if (data.argument == null) {
+            data.argument = "";
+          }
           if (msgs[data.network + "." + data.channel] == null) {
             msgs[data.network + "." + data.channel] = [];
           }
@@ -449,6 +477,7 @@
       });
       nets[data.network].chans[data.channeldata.key] = new Channel(data.channeldata);
       self.networks(nets);
+      self.isChannel = true;
       self.currentNetwork(data.network);
       return self.currentChannel(data.channeldata.key);
     };
@@ -506,6 +535,7 @@
           chanobjs[cid] = new Channel(chan);
         }
         data[nid].chans = chanobjs;
+        data[nid].unread = 0;
       }
       self.networks(data);
       nets = self.networkList();
@@ -517,8 +547,6 @@
       }
     };
     self.nickSort = function(a, b) {
-      var vals;
-      vals = "+%@&~";
       if (a.val() === "" && b.val() !== "") {
         return 1;
       }
@@ -526,10 +554,10 @@
         return -1;
       }
       if (b.val() !== a.val()) {
-        if (vals.indexOf(b.val()) > vals.indexOf(a.val())) {
+        if (modeOrder.indexOf(b.val()[0]) > modeOrder.indexOf(a.val()[0])) {
           return 1;
         }
-        if (vals.indexOf(b.val()) < vals.indexOf(a.val())) {
+        if (modeOrder.indexOf(b.val()[0]) < modeOrder.indexOf(a.val()[0])) {
           return -1;
         }
       }
@@ -540,6 +568,9 @@
         return -1;
       }
       return 0;
+    };
+    self.modeSort = function(a, b) {
+      return modeOrder.indexOf(a) - modeOrder.indexOf(b);
     };
     self.AuthError = function() {
       var modal;
@@ -592,6 +623,16 @@
   window.servernicks = ["infoserv", "global"];
 
   window["interface"] = new InterfaceViewModel();
+
+  window.modeOrder = "+%@&~";
+
+  window.modeSymbol = {
+    "v": "+",
+    "h": "%",
+    "o": "@",
+    "a": "&",
+    "q": "~"
+  };
 
   wordComplete = null;
 

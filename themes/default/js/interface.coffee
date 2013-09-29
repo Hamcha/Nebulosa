@@ -114,7 +114,7 @@ InterfaceViewModel = () ->
 	self.addNotice = (data) ->
 		# Stick notices to active channel if same network
 		net = data.network
-		if data.network is self.currentNetwork() and data.nickname isnt "" and servernicks.indexOf(data.nickname.toLowerCase()) < 0 and data.channel isnt "*"
+		if data.network is self.currentNetwork() and data.nickname? and data.nickname isnt "" and servernicks.indexOf(data.nickname.toLowerCase()) < 0 and data.channel isnt "*"
 			chan = self.currentChannel()
 		else
 			chan = ":status"
@@ -123,6 +123,9 @@ InterfaceViewModel = () ->
 			msgs[net+"."+chan] = []
 		msgs[net+"."+chan].push { type:"notice", channel: data.channel, user: data.nickname, message: self.processMessage(data.message), timestamp: formatTime data.time }
 		self.messages msgs
+		if chan is ":status"
+			nets = self.networks()
+			nets[data.network].unread += 1
 		scrollBottom()
 
 	# Add channel action to list
@@ -189,8 +192,25 @@ InterfaceViewModel = () ->
 					ulist[indexChan].splice indexUser.id, 1 if indexUser.id >= 0
 					self.userlist ulist
 			when "mode"
-				data.argument = ifval data.argument, ""
 				data.by = ifval data.by, data.network
+				# Add/remove symbol from user if someone was affected (unless in buffermode)
+				if data.argument? and modeSymbol[data.mode]? and not self.bufferMode
+					ulist = self.userlist()
+					indexChan = data.network+"."+data.channel
+					indexUser = filterSingle ulist[indexChan], (x) -> x.nick() == data.argument
+					if indexUser.id >= 0
+						modesym = modeSymbol[data.mode]
+						ustring = ulist[indexChan][indexUser.id].val()
+						# Add or remove?
+						if data.what is "+"
+							ustring += modesym
+							ustring = ustring.split("").sort(self.modeSort).join ""
+						else
+							uindex = ustring.indexOf modesym
+							ustring.splice uindex, 1 if uindex >= 0
+						ulist[indexChan][indexUser.id].val ustring
+						self.userlist ulist
+				if not data.argument? then data.argument = ""
 				if !msgs[data.network+"."+data.channel]?
 					msgs[data.network+"."+data.channel] = []
 				# Write mode message
@@ -318,6 +338,7 @@ InterfaceViewModel = () ->
 		nets[data.network].chans[data.channeldata.key] = new Channel data.channeldata
 		# Update network/channel list
 		self.networks nets
+		self.isChannel = true
 		self.currentNetwork data.network
 		self.currentChannel data.channeldata.key
 
@@ -355,6 +376,7 @@ InterfaceViewModel = () ->
 			chanobjs = {}
 			chanobjs[cid] = new Channel chan for cid,chan of data[nid].chans
 			data[nid].chans = chanobjs
+			data[nid].unread = 0
 		self.networks data
 		nets = self.networkList()
 		self.currentNetwork nets[0].id if nets[0]?
@@ -362,19 +384,19 @@ InterfaceViewModel = () ->
 		return
 
 	self.nickSort = (a,b) ->
-		# Mode order
-		vals = "+%@&~"
 		# Return the one with a mode set
 		return  1 if a.val() == "" and b.val() != ""
 		return -1 if b.val() == "" and a.val() != ""
 		# Return the one with higher mode
 		if b.val() != a.val()
-			return  1 if vals.indexOf(b.val()) > vals.indexOf(a.val()) 
-			return -1 if vals.indexOf(b.val()) < vals.indexOf(a.val()) 
+			return  1 if modeOrder.indexOf(b.val()[0]) > modeOrder.indexOf(a.val()[0]) 
+			return -1 if modeOrder.indexOf(b.val()[0]) < modeOrder.indexOf(a.val()[0]) 
 		# Otherwise sort on alphabetical sorting
 		return  1 if b.nick() < a.nick()
 		return -1 if b.nick() > a.nick()
 		return  0
+
+	self.modeSort = (a,b) -> modeOrder.indexOf(a) - modeOrder.indexOf(b)
 
 	self.AuthError = () ->
 		modal = new $.UIkit.modal.Modal "#autherr"
@@ -409,6 +431,9 @@ InterfaceViewModel = () ->
 
 window.servernicks = ["infoserv", "global"]
 window.interface = new InterfaceViewModel()
+# Mode order
+window.modeOrder = "+%@&~"
+window.modeSymbol = {"v":"+", "h":"%", "o":"@", "a":"&", "q":"~"}
 wordComplete = null
 lastIndex = 0
 $(document).ready () ->

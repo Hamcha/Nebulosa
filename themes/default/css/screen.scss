@@ -29,6 +29,7 @@ a { cursor: pointer; }
 .uk-list ul { padding-left: 10px; }
 
 .chanlist > li > a, .sublist a li { 
+	overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
 	border: 1px solid #ccc; margin: 2px; padding: 2px 5px; color: #666; padding-right: 2px;
 	&:hover { border-color: #39f; cursor: pointer; background-color: #39f; color: #fff; text-decoration: none;}
 }

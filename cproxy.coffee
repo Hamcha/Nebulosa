@@ -62,10 +62,7 @@ ClientProxy.invite = (socket, data) ->
 
 ClientProxy.mode = (socket, data) -> 
 	return unless ircsrv.ircs[data.network]?
-	if data.who? and data.who != ""
-		ircsrv.ircs[data.network].client.send "MODE", data.channel, data.what.toString(), data.args
-	else
-		ircsrv.ircs[data.network].client.send "MODE", data.channel, data.what.toString()
+	ircsrv.ircs[data.network].client.send "MODE", data.channel, data.what, data.who
 
 ClientProxy.whois = (socket, data) -> 
 	return unless ircsrv.ircs[data.network]?

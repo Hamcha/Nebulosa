@@ -11,7 +11,7 @@ ChatClient.start = () ->
 		ircClient.name = i
 		ircClient.displayName = s.name
 		ircClient.connected = false
-		ircClient.client = new irc.Client s.address, s.nickname, { channels:s.autojoin, realName:s.realname, userName:s.nickname, autoRejoin: false }
+		ircClient.client = new irc.Client s.address, s.awaynick, { channels:s.autojoin, realName:s.realname, userName:s.nickname, autoRejoin: false }
 		# Proxy all events to the EventProxy
 		proxy EventProxy, eventMap, ircClient.client, ircClient
 		# Put it into the list
@@ -43,11 +43,19 @@ ChatClient.sendBuffers = (socket) ->
 	socket.emit "buffers", false
 	return
 
+ChatClient.connections = 0
+
+ChatClient.awaynicks = (state) ->
+	# State = true  -> Set online nick
+	# State = false -> Set offline nick
+	for i,s of ChatClient.ircs
+		s.client.send "NICK", config.servers[i].nickname if state and s.client.nick is config.servers[i].awaynick
+		s.client.send "NICK", config.servers[i].awaynick if not state and s.client.nick is config.servers[i].nickname
+
 ChatClient.clearQUB = () ->
 	for j,c of buffers when j.indexOf("#") < 0
 		arr = c.get()
-		for x,i in arr when x.type is "message"
-			arr.splice i,1 
+		arr.splice i,1 for x,i in arr when x.type? and x.type is "message"
 	return
 
 ChatClient.chanInfo = (net, chan) ->

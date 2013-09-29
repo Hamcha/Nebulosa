@@ -42,11 +42,17 @@ if useAuth
 ircsrv.start()
 
 io.sockets.on 'connection', (socket) ->
+	ircsrv.awaynicks true
+	ircsrv.connections += 1
+	console.log ircsrv.connections
 	ircsrv.initClient socket
 	ircsrv.sendBuffers socket
 	# Proxy all events to the ClientProxy
 	proxy ClientProxy, clientMap, socket, socket
 	socket.on 'disconnect', () ->
+		ircsrv.connections -= 1
+		console.log ircsrv.connections
+		ircsrv.awaynicks false if ircsrv.connections <= 0
 		ircsrv.clearQUB()
 	return
 
