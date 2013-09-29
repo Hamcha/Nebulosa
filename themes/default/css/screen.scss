@@ -35,6 +35,7 @@ a { cursor: pointer; }
 }
 .chanlist > li > span.cselected { padding: 5px; line-height: 2em; }
 .cselected { 
+	overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
 	border: 1px solid #ccc; margin: 2px; padding: 2px 5px; color: #fff; 
 	border-color: #39f; cursor: pointer; background-color: #39f; text-decoration: none;
 }

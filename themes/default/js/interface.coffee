@@ -207,7 +207,10 @@ InterfaceViewModel = () ->
 							ustring = ustring.split("").sort(self.modeSort).join ""
 						else
 							uindex = ustring.indexOf modesym
-							ustring.splice uindex, 1 if uindex >= 0
+							if uindex >= 0
+							uvals = ustring.split ""
+							uvals.splice uindex, 1 
+							ustring = uvals.join ""
 						ulist[indexChan][indexUser.id].val ustring
 						self.userlist ulist
 				if not data.argument? then data.argument = ""
