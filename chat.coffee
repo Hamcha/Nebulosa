@@ -55,7 +55,7 @@ ChatClient.awaynicks = (state) ->
 ChatClient.clearQUB = () ->
 	for j,c of buffers when j.indexOf("#") < 0
 		arr = c.get()
-		arr.splice i,1 for x,i in arr when x.type? and x.type is "message"
+		arr.splice i,1 for x,i in arr when x? and x.type is "message"
 	return
 
 ChatClient.chanInfo = (net, chan) ->
