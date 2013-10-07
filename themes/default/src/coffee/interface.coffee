@@ -3,6 +3,7 @@ Channel = (cdata) ->
 	this.key = cdata.key
 	this.isquery = false
 	this.unread = ko.observable 0
+	this.mentioned = ko.observable false
 	this.serverName = cdata.serverName
 	this.mode = ko.observable cdata.mode
 	this.topic = cdata.topic if cdata.topic?
@@ -99,14 +100,19 @@ InterfaceViewModel = () ->
 		m = msgs[data.network+"."+data.channel]
 		if m[m.length - 1]?
 			omitnick = true if m[m.length - 1].user is data.nickname
+		# Check for mentions
+		mentioned = data.message.indexOf(self.netNickname(data.network)) >= 0
 		# Push message to the list
-		msgs[data.network+"."+data.channel].push { type:"message", shownick: !omitnick?, user: data.nickname, message: self.processMessage(data.message), timestamp: formatTime data.time }
+		msgs[data.network+"."+data.channel].push { type:"message", shownick: !omitnick?, user: data.nickname, message: self.processMessage(data.message), timestamp: formatTime(data.time), mentioned: mentioned }
 		self.networks nets
 		self.messages msgs
 
 		return if self.bufferMode and data.channel is data.nickname
 		if data.network isnt self.currentNetwork() or data.channel isnt self.currentChannel()
 			nets[data.network].chans[data.channel].unread nets[data.network].chans[data.channel].unread() + 1
+			if mentioned
+				nets[data.network].chans[data.channel].mentioned true
+				if window.notifications then showNotification "Mentioned!", data.nickname + " mentioned you on " + data.channel + "!"
 		else
 			scrollBottom()
 
@@ -114,7 +120,7 @@ InterfaceViewModel = () ->
 	self.addNotice = (data) ->
 		# Stick notices to active channel if same network
 		net = data.network
-		if data.network is self.currentNetwork() and data.nickname? and data.nickname isnt "" and servernicks.indexOf(data.nickname.toLowerCase()) < 0 and data.channel isnt "*"
+		if not self.bufferMode and data.network is self.currentNetwork() and data.nickname? and data.nickname isnt "" and servernicks.indexOf(data.nickname.toLowerCase()) < 0 and data.channel isnt "*"
 			chan = self.currentChannel()
 		else
 			chan = ":status"
@@ -206,8 +212,7 @@ InterfaceViewModel = () ->
 							ustring += modesym
 							ustring = ustring.split("").sort(self.modeSort).join ""
 						else
-							uindex = ustring.indexOf modesym
-							if uindex >= 0
+							uindex = ustring.indexOf modesym if uindex >= 0
 							uvals = ustring.split ""
 							uvals.splice uindex, 1 
 							ustring = uvals.join ""
@@ -330,6 +335,7 @@ InterfaceViewModel = () ->
 			# Remove unread state
 			nets = self.networks()
 			nets[network].chans[channel].unread 0
+			nets[network].chans[channel].mentioned false
 			self.networks nets
 
 	# Update channel info
@@ -437,16 +443,29 @@ window.interface = new InterfaceViewModel()
 # Mode order
 window.modeOrder = "+%@&~"
 window.modeSymbol = {"v":"+", "h":"%", "o":"@", "a":"&", "q":"~"}
+window.notifications = false
 wordComplete = null
 lastIndex = 0
 $(document).ready () ->
+	# Apply Knockout bindings
 	ko.applyBindings window.interface
+
+	$("#linkNotify").on "click", (e) ->
+		# Request permission for desktop notifications if needed
+		if window.webkitNotifications
+			notifies = checkNotifications()
+			if notifies is 1 then window.webkitNotifications.requestPermission checkNotifications
+			if notifies is 0 then window.notifications = true
+
+	# Check if authentication is needed
 	$.get "/useAuth", (data) ->
 		if data == "true"
 			window.interface.AuthDialog()
 		else 
 			interop.createSocket()
 	$("#autherr").on 'uk.modal.hide', () -> location.reload()
+
+	# Autocompletion
 	$("#inputbarcont").on "keydown", '#inputbar', (e) ->
 		keyCode = e.keyCode || e.which; 
 		if keyCode == 9
@@ -464,3 +483,22 @@ $(document).ready () ->
 			e.preventDefault()
 		else
 			wordComplete = null if wordComplete != null
+
+checkNotifications = () ->
+	switch window.webkitNotifications.checkPermission()
+		when 0
+			# We haz notifications, hooway!.
+			window.notifications = true
+			return 0
+		when 1
+			# We need to ask :O
+			return 1
+		when 2
+			# He doesn't want them :(
+			window.notifications = false
+			return 2
+
+showNotification = (title,message) ->
+	icon = "/images/icon32.png"
+	notification = window.webkitNotifications.createNotification icon, title, message
+	notification.show()

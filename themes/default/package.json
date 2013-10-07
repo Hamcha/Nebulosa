@@ -1,0 +1,22 @@
+{
+    "name": "frontend",
+    "version": "0.0.0",
+    "dependencies": {},
+    "devDependencies": {
+        "grunt": "*",
+        "bower": "~0.9.2",
+        "grunt-contrib-watch": "*",
+        "grunt-contrib-coffee": "*",
+        "grunt-contrib-compass": "*",
+        "grunt-concurrent": "*",
+        "grunt-contrib-connect": "*",
+        "grunt-open": "*",
+        "grunt-bower-install": "*",
+        "load-grunt-tasks": "*",
+        "connect-livereload": "*",
+        "time-grunt": "*"
+    },
+    "engines": {
+        "node": ">=0.8.0"
+    }
+}

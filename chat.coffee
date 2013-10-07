@@ -11,7 +11,7 @@ ChatClient.start = () ->
 		ircClient.name = i
 		ircClient.displayName = s.name
 		ircClient.connected = false
-		ircClient.client = new irc.Client s.address, s.awaynick, { channels:s.autojoin, realName:s.realname, userName:s.nickname, autoRejoin: false }
+		ircClient.client = new irc.Client s.address, s.nickname, { channels:s.autojoin, realName:s.realname, userName:s.nickname, autoRejoin: false }
 		# Proxy all events to the EventProxy
 		proxy EventProxy, eventMap, ircClient.client, ircClient
 		# Put it into the list

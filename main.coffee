@@ -47,7 +47,6 @@ io.sockets.on 'connection', (socket) ->
 	# Proxy all events to the ClientProxy
 	proxy ClientProxy, clientMap, socket, socket
 	socket.on 'disconnect', () ->
-		ircsrv.awaynicks false if ircsrv.connections <= 0
 		ircsrv.clearQUB()
 	return
 

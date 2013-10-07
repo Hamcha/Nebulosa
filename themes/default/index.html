@@ -45,13 +45,33 @@
 						<!-- ko if:  $root.currentNetwork() != $parent.id || $root.currentChannel() != key -->
 							<!-- ko if: isquery -->
 						<a data-bind="click: $root.switchTo.bind($data,$parent.id,key,false)">
-							<!-- ko if: unread --><li class="cnew"><span data-bind="text: key"></span><span class="unread uk-badge uk-badge-danger" data-bind="text: unread"></span></li><!-- /ko -->
+							<!-- ko if: unread -->
+
+							<!-- ko if: mentioned -->
+							<li class="cmentioned"><span data-bind="text: key"></span><span class="unread uk-badge uk-badge-success" data-bind="text: unread"></span></li>
+							<!-- /ko -->
+
+							<!-- ko ifnot: mentioned -->
+							<li class="cnew"><span data-bind="text: key"></span><span class="unread uk-badge uk-badge-danger" data-bind="text: unread"></span></li>
+							<!-- /ko -->
+							
+							<!-- /ko -->
 							<!-- ko ifnot: unread --><li data-bind="text: key"></li><!-- /ko -->
 						</a>
 							<!-- /ko -->
 							<!-- ko ifnot: isquery -->
 						<a data-bind="click: $root.switchTo.bind($data,$parent.id,key,true)">
-							<!-- ko if: unread --><li class="cnew"><span data-bind="text: key"></span><span class="unread uk-badge uk-badge-danger" data-bind="text: unread"></span></li><!-- /ko -->
+							<!-- ko if: unread -->
+
+							<!-- ko if: mentioned -->
+							<li class="cmentioned"><span data-bind="text: key"></span><span class="unread uk-badge uk-badge-success" data-bind="text: unread"></span></li>
+							<!-- /ko -->
+
+							<!-- ko ifnot: mentioned -->
+							<li class="cnew"><span data-bind="text: key"></span><span class="unread uk-badge uk-badge-danger" data-bind="text: unread"></span></li>
+							<!-- /ko -->
+
+							<!-- /ko -->
 							<!-- ko ifnot: unread --><li data-bind="text: key"></li><!-- /ko -->
 						</a>
 							<!-- /ko -->
@@ -74,7 +94,14 @@
 						<!-- /ko --><!-- ko ifnot: shownick -->
 						<div class="username">&nbsp;</div> 
 						<!-- /ko -->
+
+						<!-- ko if: mentioned -->
+						<div class="message msgmention" data-bind="html: message">Message</div>
+						<!-- /ko -->
+						<!-- ko ifnot: mentioned -->
 						<div class="message" data-bind="html: message">Message</div>
+						<!-- /ko -->
+
 						<div class="timestamp" data-bind="text: timestamp"></div>
 					</div>
 					<!-- /ko -->
@@ -132,7 +159,10 @@
 	</div>
 	<div id="extmenu" class="uk-offcanvas">
 		<div class="uk-offcanvas-bar">
-			<div class="uk-panel">Test</div>
+			<ul class="uk-nav uk-nav-offcanvas" data-uk-nav>
+				<li class="uk-nav-header">Actions</li>
+				<li><a id="linkNotify">Enable Notifications</a></li>
+			</ul>
 		</div>
 	</div>
 	<div id="autherr" class="uk-modal">

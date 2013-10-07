@@ -40,6 +40,7 @@ a { cursor: pointer; }
 	border-color: #39f; cursor: pointer; background-color: #39f; text-decoration: none;
 }
 .sublist a li.cnew { color: #a00; }
+.sublist a li.cmentioned { color: #590; border-color: #8cc14c; }
 .sublist a { text-decoration: none; }
 .chanlist > li > a { padding:5px; line-height: 2em;}
 .unread { float: right; margin: 0; padding: 3px 5px; }
@@ -54,6 +55,7 @@ a { cursor: pointer; }
 .notice { padding: 5px; padding-left: 10px; background-color: #f2fae3; color: #659f13; padding-right: 80px;}
 .error { padding: 5px; padding-left: 10px; background-color: #fee; color: #d53; padding-right: 80px;}
 .whoiscont { padding: 5px; padding-left: 10px; line-height: 1.5em;}
+.msgmention { color: #659f13; }
 
 .symbol { 
 	display: inline-block; width: 13px; margin-right: 5px; text-align: center;
