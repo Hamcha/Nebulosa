@@ -151,7 +151,7 @@
       });
       self.networks(nets);
       self.messages(msgs);
-      if (self.bufferMode && data.channel === data.nickname) {
+      if (self.bufferMode || data.channel === data.nickname) {
         return;
       }
       if (data.network !== self.currentNetwork() || data.channel !== self.currentChannel()) {

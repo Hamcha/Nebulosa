@@ -107,7 +107,7 @@ InterfaceViewModel = () ->
 		self.networks nets
 		self.messages msgs
 
-		return if self.bufferMode and data.channel is data.nickname
+		return if self.bufferMode or data.channel is data.nickname
 		if data.network isnt self.currentNetwork() or data.channel isnt self.currentChannel()
 			nets[data.network].chans[data.channel].unread nets[data.network].chans[data.channel].unread() + 1
 			if mentioned
