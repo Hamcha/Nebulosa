@@ -3,9 +3,9 @@ html, body { height: 100%; overflow: hidden; font-family: "Source Sans Pro", san
 h1,h2,h3,h4 { font-family: "Source Sans Pro", sans-serif; }
 a { cursor: pointer; }
 
-#chatmessages { 
-	width: 100%;
-	li { padding: 0; }
+.chatmessages { 
+	position: absolute; top: 0; left: 0; width: 100%;
+	li { padding: 0; } margin-top: 0;
 }
 #inputbarcont { 
 	position: absolute; left: 170px; right: 160px; bottom: 0;

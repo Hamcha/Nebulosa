@@ -2,7 +2,7 @@ window.filterSingle = (array, func) -> return {id:i,elem:x} for x,i in array whe
 
 window.ifval = (val, def) -> return if val? then val else def
 
-window.scrollBottom = () -> $("#centerbar").scrollTop $("#centerbar > ul").height()
+window.scrollBottom = () -> $("#centerbar").scrollTop $("#centerbar ul:visible").height()
 
 window.toTimeStr = (time) -> time + " seconds"
 

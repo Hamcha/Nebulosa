@@ -84,7 +84,9 @@
 			</ul>
 		</div>
 		<div id="centerbar" class="uk-panel uk-panel-box uk-vertical-align normalwide">
-			<ul id="chatmessages" class="uk-list uk-list-striped uk-vertical-align-bottom" data-bind="foreach: channelActivity">
+			<div data-bind="foreach: networkList">
+				<div class="chatwnd chatmessages" data-bind="foreach: chans, visible: id == $root.currentNetwork()">
+			<ul style="margin-top:0;margin-bottom:0;width:100%" class="uk-list uk-list-striped uk-vertical-align-bottom" data-bind="foreach: messages, visible: key == $root.currentChannel()">
 				<li style="position:relative;">
 					<!-- ko if: type == "message" -->
 					<div style="display: table-row;">
@@ -132,6 +134,8 @@
 					<!-- /ko -->
 				</li>
 			</ul>
+				</div>
+			</div>
 		</div>
 		<div id="rightbar" class="uk-panel">
 			<ul id="userlist" class="uk-list us-list" data-bind="foreach: channelUsers">

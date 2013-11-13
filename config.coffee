@@ -19,7 +19,7 @@ webserver =
 	password : ""			# Password, if you have remote access enabled
 							# it will prevent other people from accessing your IRC session
 							# If you want to disable it put a blank string ("") on both
-	theme : "default"		# Theme for the web interface
+	theme : "backbone"		# Theme for the web interface
 
 # Servers configuration
 

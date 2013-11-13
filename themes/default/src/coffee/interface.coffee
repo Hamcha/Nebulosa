@@ -24,7 +24,7 @@ InterfaceViewModel = () ->
 	self.currentChannel = ko.observable ""
 	self.messageBar = ko.observable ""
 	self.userlist = ko.observable {}
-	self.messages = ko.observable {}
+	self.messages = {}
 	self.isChannel = true
 	self.bufferMode = false
 
@@ -42,6 +42,7 @@ InterfaceViewModel = () ->
 			for cname, cval of network.chans
 				cval.id = cname
 				cval.unread() # Fix because Knockout.js is retarded
+				cval.messages = ifval self.messages[tnet.id+"."+cname], []
 				tnet.chans.push cval
 				# Prepare userlist
 				uchan = []
@@ -57,9 +58,6 @@ InterfaceViewModel = () ->
 		return unless ulist?
 		ulist.sort self.nickSort
 		return ulist
-
-	# Get the activity for the active channel
-	self.channelActivity = ko.computed () -> self.messages()[self.currentNetwork()+"."+self.currentChannel()].slice -50 if self.messages()[self.currentNetwork()+"."+self.currentChannel()]?
 
 	# Get the user list for the active channel
 	self.currentTopic = ko.computed () ->
@@ -85,7 +83,6 @@ InterfaceViewModel = () ->
 
 	# Add message to list
 	self.addMessage = (data) ->
-		msgs = self.messages()
 		nets = self.networks()
 		if data.channel is self.netNickname(data.network) or data.channel is data.nickname
 			# Is a query and it's not created? Create it already!
@@ -94,18 +91,17 @@ InterfaceViewModel = () ->
 				nets[data.network].chans[data.nickname].isquery = true
 				self.networks nets
 			data.channel = data.nickname
-		if not msgs[data.network+"."+data.channel]?
-			msgs[data.network+"."+data.channel] = []
+		if not self.messages[data.network+"."+data.channel]?
+			self.messages[data.network+"."+data.channel] = ko.observableArray()
 		# Get last message author (for omission)
-		m = msgs[data.network+"."+data.channel]
+		m = self.messages[data.network+"."+data.channel]
 		if m[m.length - 1]?
 			omitnick = true if m[m.length - 1].user is data.nickname
 		# Check for mentions
 		mentioned = data.message.indexOf(self.netNickname(data.network)) >= 0
 		# Push message to the list
-		msgs[data.network+"."+data.channel].push { type:"message", shownick: !omitnick?, user: data.nickname, message: self.processMessage(data.message), timestamp: formatTime(data.time), mentioned: mentioned }
+		self.messages[data.network+"."+data.channel].push { type:"message", shownick: !omitnick?, user: data.nickname, message: self.processMessage(data.message), timestamp: formatTime(data.time), mentioned: mentioned }
 		self.networks nets
-		self.messages msgs
 
 		return if self.bufferMode or data.channel is data.nickname
 		if data.network isnt self.currentNetwork() or data.channel isnt self.currentChannel()
@@ -124,11 +120,9 @@ InterfaceViewModel = () ->
 			chan = self.currentChannel()
 		else
 			chan = ":status"
-		msgs = self.messages()
-		if !msgs[net+"."+chan]?
-			msgs[net+"."+chan] = []
-		msgs[net+"."+chan].push { type:"notice", channel: data.channel, user: data.nickname, message: self.processMessage(data.message), timestamp: formatTime data.time }
-		self.messages msgs
+		if !self.messages[net+"."+chan]?
+			self.messages[net+"."+chan] = ko.observableArray()
+		self.messages[net+"."+chan].push { type:"notice", channel: data.channel, user: data.nickname, message: self.processMessage(data.message), timestamp: formatTime data.time }
 		if chan is ":status"
 			nets = self.networks()
 			nets[data.network].unread += 1
@@ -136,16 +130,15 @@ InterfaceViewModel = () ->
 
 	# Add channel action to list
 	self.addChannelAction = (type, data) ->
-		msgs = self.messages()
 		switch type
 			when "join"
 				if !self.bufferMode and data.nickname == self.netNickname data.network
 					interop.socket.emit "chaninfo", {network:data.network,channel:data.channel}
 					return
-				if !msgs[data.network+"."+data.channel]?
-					msgs[data.network+"."+data.channel] = []
+				if !self.messages[data.network+"."+data.channel]?
+					self.messages[data.network+"."+data.channel] = ko.observableArray()
 				# Write join message
-				msgs[data.network+"."+data.channel].push { type:"chaction", message: "<b>" + data.nickname + "</b>  has joined the channel", timestamp: formatTime data.time }
+				self.messages[data.network+"."+data.channel].push { type:"chaction", message: "<b>" + data.nickname + "</b>  has joined the channel", timestamp: formatTime data.time }
 				# If we're in buffer mode we don't need to alter the list
 				break if self.bufferMode
 				# Add user to list
@@ -166,23 +159,23 @@ InterfaceViewModel = () ->
 				data.reason = ifval data.reason, ""
 				switch type
 					when "part"
-						if !msgs[data.network+"."+data.channel]?
-							msgs[data.network+"."+data.channel] = []
-						msgs[data.network+"."+data.channel].push { type:"chaction", message: "<b>" + data.nickname + "</b>  has left the channel (" + data.reason + ")", timestamp: formatTime data.time }
+						if !self.messages[data.network+"."+data.channel]?
+							self.messages[data.network+"."+data.channel] = ko.observableArray()
+						self.messages[data.network+"."+data.channel].push { type:"chaction", message: "<b>" + data.nickname + "</b>  has left the channel (" + data.reason + ")", timestamp: formatTime data.time }
 					when "kick"
-						if !msgs[data.network+"."+data.channel]?
-							msgs[data.network+"."+data.channel] = []
-						msgs[data.network+"."+data.channel].push { type:"chaction", message: "<b>" + data.nickname + "</b>  has been kicked by <b>" + data.by + "</b> (" + data.reason + ")", timestamp: formatTime data.time }
+						if !self.messages[data.network+"."+data.channel]?
+							self.messages[data.network+"."+data.channel] = ko.observableArray()
+						self.messages[data.network+"."+data.channel].push { type:"chaction", message: "<b>" + data.nickname + "</b>  has been kicked by <b>" + data.by + "</b> (" + data.reason + ")", timestamp: formatTime data.time }
 					when "quit"
 						# Fix channel bug (just in case)
 						if !Array.isArray data.channels
 							data.channels = [data.channels]
 						reason = ifval data.reason, ""
 						for chan in data.channels
-							if !msgs[data.network+"."+chan]?
-								msgs[data.network+"."+chan] = []
+							if !self.messages[data.network+"."+chan]?
+								self.messages[data.network+"."+chan] = ko.observableArray()
 							# Write quit message
-							msgs[data.network+"."+chan].push { type:"chaction", message: "<b>" + data.nickname + "</b> has quit (" + reason + ")", timestamp: formatTime data.time }
+							self.messages[data.network+"."+chan].push { type:"chaction", message: "<b>" + data.nickname + "</b> has quit (" + reason + ")", timestamp: formatTime data.time }
 				# If we're in buffer mode we don't need to alter the list
 				break if self.bufferMode
 				# Delete user from list
@@ -219,10 +212,10 @@ InterfaceViewModel = () ->
 						ulist[indexChan][indexUser.id].val ustring
 						self.userlist ulist
 				if not data.argument? then data.argument = ""
-				if !msgs[data.network+"."+data.channel]?
-					msgs[data.network+"."+data.channel] = []
+				if !self.messages[data.network+"."+data.channel]?
+					self.messages[data.network+"."+data.channel] = ko.observableArray()
 				# Write mode message
-				msgs[data.network+"."+data.channel].push { type:"chaction", message: "<b>" + data.by + "</b>  sets mode " + data.what + data.mode + " " + data.argument, timestamp: formatTime data.time }
+				self.messages[data.network+"."+data.channel].push { type:"chaction", message: "<b>" + data.by + "</b>  sets mode " + data.what + data.mode + " " + data.argument, timestamp: formatTime data.time }
 			when "nick"
 				if !self.bufferMode and data.oldnick == self.netNickname data.network
 					nets = self.networks()
@@ -232,10 +225,10 @@ InterfaceViewModel = () ->
 				if !Array.isArray data.channels
 					data.channels = [data.channels]
 				for chan in data.channels
-					if !msgs[data.network+"."+chan]?
-						msgs[data.network+"."+chan] = []
+					if !self.messages[data.network+"."+chan]?
+						self.messages[data.network+"."+chan] = ko.observableArray()
 					# Write nick message
-					msgs[data.network+"."+chan].push { type:"chaction", message: "<b>" + data.oldnick + "</b> is now <b>" + data.newnick + "</b>", timestamp: formatTime data.time }
+					self.messages[data.network+"."+chan].push { type:"chaction", message: "<b>" + data.oldnick + "</b> is now <b>" + data.newnick + "</b>", timestamp: formatTime data.time }
 				# If we're in buffer mode we don't need to alter the list
 				break if self.bufferMode
 				# Modify user nick from list
@@ -247,28 +240,24 @@ InterfaceViewModel = () ->
 				self.userlist ulist
 			when "quit"
 				self.switchTo data.network, ":status", false
-				msgs[data.network+".:status"].push { type:"chaction", message: "Disconnected from <b>" + data.network + "</b>", timestamp: formatTime data.time }
-		self.messages msgs
+				self.messages[data.network+".:status"].push { type:"chaction", message: "Disconnected from <b>" + data.network + "</b>", timestamp: formatTime data.time }
 		scrollBottom()
 
 	# Add message to list
 	self.addError = (message) ->
 		curchan = self.currentChannel()
 		curnet = self.currentNetwork()
-		msgs = self.messages()
-		if !msgs[curnet+"."+curchan]?
-			msgs[curnet+"."+curchan] = []
-		msgs[curnet+"."+curchan].push { type:"error", user:"", message: message }
-		self.messages msgs
+		if !self.messages[curnet+"."+curchan]?
+			self.messages[curnet+"."+curchan] = ko.observableArray()
+		self.messages[curnet+"."+curchan].push { type:"error", user:"", message: message }
 		scrollBottom()
 
 	# Add message to list
 	self.addWhois = (data) ->
 		curchan = self.currentChannel()
 		curnet = self.currentNetwork()
-		msgs = self.messages()
-		if !msgs[curnet+"."+curchan]?
-			msgs[curnet+"."+curchan] = []
+		if !self.messages[curnet+"."+curchan]?
+			self.messages[curnet+"."+curchan] = ko.observableArray()
 		# Beautify whois data
 		ninfo = [
 			"<b>" + data.info.nick + "</b> is " + data.info.realname + " (" + data.info.user + "@" + data.info.host + ")",
@@ -276,8 +265,7 @@ InterfaceViewModel = () ->
 			"&nbsp;&nbsp;&nbsp;&nbsp;is on " + data.info.server + " (" + data.info.serverinfo + ")"
 		]
 		ninfo.push "&nbsp;&nbsp;&nbsp;&nbsp;has been idle " + toTimeStr data.info.idle if data.info.idle?
-		msgs[curnet+"."+curchan].push { type:"whois", user:"", nickname:data.info.nick, info:ninfo }
-		self.messages msgs
+		self.messages[curnet+"."+curchan].push { type:"whois", user:"", nickname:data.info.nick, info:ninfo }
 		scrollBottom()
 
 	self.processMessage = (message) ->
@@ -369,11 +357,9 @@ InterfaceViewModel = () ->
 		nets[data.network].chans[data.channel].topicBy = data.nickname
 		self.networks nets
 		# Create message with topic change
-		msgs = self.messages()
-		if !msgs[data.network+"."+data.channel]?
-			msgs[data.network+"."+data.channel] = []
-		msgs[data.network+"."+data.channel].push { type:"chaction", message: data.nickname + " has set the topic to: " + data.topic, timestamp: formatTime data.time }
-		self.messages msgs
+		if !self.messages[data.network+"."+data.channel]?
+			self.messages[data.network+"."+data.channel] = ko.observableArray()
+		self.messages[data.network+"."+data.channel].push { type:"chaction", message: data.nickname + " has set the topic to: " + data.topic, timestamp: formatTime data.time }
 		scrollBottom()
 
 	# Get the networks and channels joined and format them so they can be loaded into Knockout

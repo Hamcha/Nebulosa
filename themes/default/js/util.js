@@ -23,7 +23,7 @@
   };
 
   window.scrollBottom = function() {
-    return $("#centerbar").scrollTop($("#centerbar > ul").height());
+    return $("#centerbar").scrollTop($("#centerbar ul:visible").height());
   };
 
   window.toTimeStr = function(time) {

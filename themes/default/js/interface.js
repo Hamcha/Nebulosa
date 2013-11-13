@@ -30,7 +30,7 @@
     self.currentChannel = ko.observable("");
     self.messageBar = ko.observable("");
     self.userlist = ko.observable({});
-    self.messages = ko.observable({});
+    self.messages = {};
     self.isChannel = true;
     self.bufferMode = false;
     self.networkList = ko.computed(function() {
@@ -50,6 +50,7 @@
           cval = _ref1[cname];
           cval.id = cname;
           cval.unread();
+          cval.messages = ifval(self.messages[tnet.id + "." + cname], []);
           tnet.chans.push(cval);
           uchan = [];
           _ref2 = cval.users;
@@ -71,11 +72,6 @@
       }
       ulist.sort(self.nickSort);
       return ulist;
-    });
-    self.channelActivity = ko.computed(function() {
-      if (self.messages()[self.currentNetwork() + "." + self.currentChannel()] != null) {
-        return self.messages()[self.currentNetwork() + "." + self.currentChannel()].slice(-50);
-      }
     });
     self.currentTopic = ko.computed(function() {
       var curchan, curnet, nets, tnick, topic;
@@ -117,8 +113,7 @@
       }
     };
     self.addMessage = function(data) {
-      var m, mentioned, msgs, nets, omitnick;
-      msgs = self.messages();
+      var m, mentioned, nets, omitnick;
       nets = self.networks();
       if (data.channel === self.netNickname(data.network) || data.channel === data.nickname) {
         if (nets[data.network].chans[data.nickname] == null) {
@@ -131,17 +126,17 @@
         }
         data.channel = data.nickname;
       }
-      if (msgs[data.network + "." + data.channel] == null) {
-        msgs[data.network + "." + data.channel] = [];
+      if (self.messages[data.network + "." + data.channel] == null) {
+        self.messages[data.network + "." + data.channel] = ko.observableArray();
       }
-      m = msgs[data.network + "." + data.channel];
+      m = self.messages[data.network + "." + data.channel];
       if (m[m.length - 1] != null) {
         if (m[m.length - 1].user === data.nickname) {
           omitnick = true;
         }
       }
       mentioned = data.message.indexOf(self.netNickname(data.network)) >= 0;
-      msgs[data.network + "." + data.channel].push({
+      self.messages[data.network + "." + data.channel].push({
         type: "message",
         shownick: omitnick == null,
         user: data.nickname,
@@ -150,7 +145,6 @@
         mentioned: mentioned
       });
       self.networks(nets);
-      self.messages(msgs);
       if (self.bufferMode || data.channel === data.nickname) {
         return;
       }
@@ -167,25 +161,23 @@
       }
     };
     self.addNotice = function(data) {
-      var chan, msgs, net, nets;
+      var chan, net, nets;
       net = data.network;
       if (!self.bufferMode && data.network === self.currentNetwork() && (data.nickname != null) && data.nickname !== "" && servernicks.indexOf(data.nickname.toLowerCase()) < 0 && data.channel !== "*") {
         chan = self.currentChannel();
       } else {
         chan = ":status";
       }
-      msgs = self.messages();
-      if (msgs[net + "." + chan] == null) {
-        msgs[net + "." + chan] = [];
+      if (self.messages[net + "." + chan] == null) {
+        self.messages[net + "." + chan] = ko.observableArray();
       }
-      msgs[net + "." + chan].push({
+      self.messages[net + "." + chan].push({
         type: "notice",
         channel: data.channel,
         user: data.nickname,
         message: self.processMessage(data.message),
         timestamp: formatTime(data.time)
       });
-      self.messages(msgs);
       if (chan === ":status") {
         nets = self.networks();
         nets[data.network].unread += 1;
@@ -193,8 +185,7 @@
       return scrollBottom();
     };
     self.addChannelAction = function(type, data) {
-      var chan, channels, indexChan, indexUser, modesym, msgs, nets, reason, uindex, ulist, ustring, uvals, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2;
-      msgs = self.messages();
+      var chan, channels, indexChan, indexUser, modesym, nets, reason, uindex, ulist, ustring, uvals, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2;
       switch (type) {
         case "join":
           if (!self.bufferMode && data.nickname === self.netNickname(data.network)) {
@@ -204,10 +195,10 @@
             });
             return;
           }
-          if (msgs[data.network + "." + data.channel] == null) {
-            msgs[data.network + "." + data.channel] = [];
+          if (self.messages[data.network + "." + data.channel] == null) {
+            self.messages[data.network + "." + data.channel] = ko.observableArray();
           }
-          msgs[data.network + "." + data.channel].push({
+          self.messages[data.network + "." + data.channel].push({
             type: "chaction",
             message: "<b>" + data.nickname + "</b>  has joined the channel",
             timestamp: formatTime(data.time)
@@ -232,20 +223,20 @@
           data.reason = ifval(data.reason, "");
           switch (type) {
             case "part":
-              if (msgs[data.network + "." + data.channel] == null) {
-                msgs[data.network + "." + data.channel] = [];
+              if (self.messages[data.network + "." + data.channel] == null) {
+                self.messages[data.network + "." + data.channel] = ko.observableArray();
               }
-              msgs[data.network + "." + data.channel].push({
+              self.messages[data.network + "." + data.channel].push({
                 type: "chaction",
                 message: "<b>" + data.nickname + "</b>  has left the channel (" + data.reason + ")",
                 timestamp: formatTime(data.time)
               });
               break;
             case "kick":
-              if (msgs[data.network + "." + data.channel] == null) {
-                msgs[data.network + "." + data.channel] = [];
+              if (self.messages[data.network + "." + data.channel] == null) {
+                self.messages[data.network + "." + data.channel] = ko.observableArray();
               }
-              msgs[data.network + "." + data.channel].push({
+              self.messages[data.network + "." + data.channel].push({
                 type: "chaction",
                 message: "<b>" + data.nickname + "</b>  has been kicked by <b>" + data.by + "</b> (" + data.reason + ")",
                 timestamp: formatTime(data.time)
@@ -259,10 +250,10 @@
               _ref = data.channels;
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 chan = _ref[_i];
-                if (msgs[data.network + "." + chan] == null) {
-                  msgs[data.network + "." + chan] = [];
+                if (self.messages[data.network + "." + chan] == null) {
+                  self.messages[data.network + "." + chan] = ko.observableArray();
                 }
-                msgs[data.network + "." + chan].push({
+                self.messages[data.network + "." + chan].push({
                   type: "chaction",
                   message: "<b>" + data.nickname + "</b> has quit (" + reason + ")",
                   timestamp: formatTime(data.time)
@@ -319,10 +310,10 @@
           if (data.argument == null) {
             data.argument = "";
           }
-          if (msgs[data.network + "." + data.channel] == null) {
-            msgs[data.network + "." + data.channel] = [];
+          if (self.messages[data.network + "." + data.channel] == null) {
+            self.messages[data.network + "." + data.channel] = ko.observableArray();
           }
-          msgs[data.network + "." + data.channel].push({
+          self.messages[data.network + "." + data.channel].push({
             type: "chaction",
             message: "<b>" + data.by + "</b>  sets mode " + data.what + data.mode + " " + data.argument,
             timestamp: formatTime(data.time)
@@ -340,10 +331,10 @@
           _ref1 = data.channels;
           for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
             chan = _ref1[_k];
-            if (msgs[data.network + "." + chan] == null) {
-              msgs[data.network + "." + chan] = [];
+            if (self.messages[data.network + "." + chan] == null) {
+              self.messages[data.network + "." + chan] = ko.observableArray();
             }
-            msgs[data.network + "." + chan].push({
+            self.messages[data.network + "." + chan].push({
               type: "chaction",
               message: "<b>" + data.oldnick + "</b> is now <b>" + data.newnick + "</b>",
               timestamp: formatTime(data.time)
@@ -368,50 +359,45 @@
           break;
         case "quit":
           self.switchTo(data.network, ":status", false);
-          msgs[data.network + ".:status"].push({
+          self.messages[data.network + ".:status"].push({
             type: "chaction",
             message: "Disconnected from <b>" + data.network + "</b>",
             timestamp: formatTime(data.time)
           });
       }
-      self.messages(msgs);
       return scrollBottom();
     };
     self.addError = function(message) {
-      var curchan, curnet, msgs;
+      var curchan, curnet;
       curchan = self.currentChannel();
       curnet = self.currentNetwork();
-      msgs = self.messages();
-      if (msgs[curnet + "." + curchan] == null) {
-        msgs[curnet + "." + curchan] = [];
+      if (self.messages[curnet + "." + curchan] == null) {
+        self.messages[curnet + "." + curchan] = ko.observableArray();
       }
-      msgs[curnet + "." + curchan].push({
+      self.messages[curnet + "." + curchan].push({
         type: "error",
         user: "",
         message: message
       });
-      self.messages(msgs);
       return scrollBottom();
     };
     self.addWhois = function(data) {
-      var curchan, curnet, msgs, ninfo;
+      var curchan, curnet, ninfo;
       curchan = self.currentChannel();
       curnet = self.currentNetwork();
-      msgs = self.messages();
-      if (msgs[curnet + "." + curchan] == null) {
-        msgs[curnet + "." + curchan] = [];
+      if (self.messages[curnet + "." + curchan] == null) {
+        self.messages[curnet + "." + curchan] = ko.observableArray();
       }
       ninfo = ["<b>" + data.info.nick + "</b> is " + data.info.realname + " (" + data.info.user + "@" + data.info.host + ")", "&nbsp;&nbsp;&nbsp;&nbsp;is on <b>" + (data.info.channels.join(", ")) + "</b>", "&nbsp;&nbsp;&nbsp;&nbsp;is on " + data.info.server + " (" + data.info.serverinfo + ")"];
       if (data.info.idle != null) {
         ninfo.push("&nbsp;&nbsp;&nbsp;&nbsp;has been idle " + toTimeStr(data.info.idle));
       }
-      msgs[curnet + "." + curchan].push({
+      self.messages[curnet + "." + curchan].push({
         type: "whois",
         user: "",
         nickname: data.info.nick,
         info: ninfo
       });
-      self.messages(msgs);
       return scrollBottom();
     };
     self.processMessage = function(message) {
@@ -506,7 +492,7 @@
       return self.userlist(ulist);
     };
     self.setTopic = function(data) {
-      var msgs, nets;
+      var nets;
       nets = self.networks();
       if (nets[data.network].chans[data.channel] == null) {
         return;
@@ -514,16 +500,14 @@
       nets[data.network].chans[data.channel].topic = data.topic;
       nets[data.network].chans[data.channel].topicBy = data.nickname;
       self.networks(nets);
-      msgs = self.messages();
-      if (msgs[data.network + "." + data.channel] == null) {
-        msgs[data.network + "." + data.channel] = [];
+      if (self.messages[data.network + "." + data.channel] == null) {
+        self.messages[data.network + "." + data.channel] = ko.observableArray();
       }
-      msgs[data.network + "." + data.channel].push({
+      self.messages[data.network + "." + data.channel].push({
         type: "chaction",
         message: data.nickname + " has set the topic to: " + data.topic,
         timestamp: formatTime(data.time)
       });
-      self.messages(msgs);
       return scrollBottom();
     };
     self.initNetworks = function(data) {
