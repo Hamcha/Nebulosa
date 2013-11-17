@@ -129,7 +129,7 @@
       if (self.messages[data.network + "." + data.channel] == null) {
         self.messages[data.network + "." + data.channel] = ko.observableArray();
       }
-      m = self.messages[data.network + "." + data.channel];
+      m = self.messages[data.network + "." + data.channel]();
       if (m[m.length - 1] != null) {
         if (m[m.length - 1].user === data.nickname) {
           omitnick = true;

@@ -94,7 +94,7 @@ InterfaceViewModel = () ->
 		if not self.messages[data.network+"."+data.channel]?
 			self.messages[data.network+"."+data.channel] = ko.observableArray()
 		# Get last message author (for omission)
-		m = self.messages[data.network+"."+data.channel]
+		m = self.messages[data.network+"."+data.channel]()
 		if m[m.length - 1]?
 			omitnick = true if m[m.length - 1].user is data.nickname
 		# Check for mentions

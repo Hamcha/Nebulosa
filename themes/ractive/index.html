@@ -8,7 +8,7 @@
 	<script src="/js/jquery.dev.js"></script>
 	<script src="/js/uikit.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
-	<script src="/js/knockout.debug.js"></script>
+	<script src="/js/ractive.js"></script>
 	<script src="/js/ba-linkify.min.js"></script>
 	<!-- Client libraries and styles -->
 	<link rel="stylesheet" href="/css/screen.css" />
@@ -17,23 +17,25 @@
 	<script src="/js/interface.js"></script>
 </head>
 <body>
-	<div id="container">
+	<div id="container"></div>
+	<script id='template' type='text/ractive'>
 		<!-- First Row (Navbar) -->
 		<div class="uk-float-left uk-width-1-1">
 			<nav class="uk-navbar" style="border-bottom: 1px solid #ddd;">
 				<a class="uk-navbar-toggle" data-uk-offcanvas="{target:'#extmenu'}"></a>
 				<ul class="uk-navbar-nav">
 				</ul>
-				<!-- ko if: currentTopic -->
-				<div class="topic" data-bind="with: currentTopic">
-					<span data-bind="text: topic">Topic here</span> <span class="author">set by <span data-bind="text: topicBy">Author</span></span>
+				{{#currentTopic}}
+				<div class="topic">
+					<span>{{currentTopic.topic}}</span> <span class="author">set by <span>{{currentTopic.topicBy}}</span></span>
 				</div>
-				<!-- /ko -->
+				{{/currentTopic}}
 			</nav>
 		</div>
 		<!-- Second Row (Channels / Chat View / User list) -->
 		<div id="leftbar" class="uk-panel uk-panel-box uk-panel-box-secondary">
-			<ul id="chanlist" class="chanlist uk-list uk-list-line" data-bind="foreach: networkList">
+			{{#networks:id}}
+			<ul id="chanlist" class="chanlist uk-list uk-list-line">
 				<li>
 					<!-- ko if: $root.currentNetwork() != id || $root.currentChannel() != ":status" -->
 					<a data-bind="text: name,click: $root.switchTo.bind($data,id,':status', false)">Unnamed Network</a>
@@ -82,6 +84,7 @@
 					</ul>
 				</li>
 			</ul>
+			{{/networks}}
 		</div>
 		<div id="centerbar" class="uk-panel uk-panel-box uk-vertical-align normalwide">
 			<div data-bind="foreach: networkList">
@@ -149,17 +152,17 @@
 					<li><a>Style</a></li>
 				</ul>
 				<ul class="uk-navbar-nav uk-navbar-flip">
-					<li><a data-bind="click: sendMessage">Send message</a></li>
+					<li><a on-click="sendMessage">Send message</a></li>
 				</ul>
 				<div id="inputbarcont" class="uk-form">
-					<form data-bind="submit: sendMessage">
-						<input type="text" id="inputbar" data-bind="value: messageBar" />
+					<form on-submit='sendMessage'>
+						<input type="text" id="inputbar" value="{{messageBar}}" />
 					</form>
 				</div>
 			</nav>
 			
 		</div>
-	</div>
+	</script>
 	<div id="extmenu" class="uk-offcanvas">
 		<div class="uk-offcanvas-bar">
 			<ul class="uk-nav uk-nav-offcanvas" data-uk-nav>
