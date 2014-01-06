@@ -1,1 +1,4 @@
-_site/
+node_modules/
+themes/.sass-cache/
+gh-pages/
+old/
