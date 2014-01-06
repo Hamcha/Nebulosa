@@ -1,0 +1,36 @@
+---
+layout: page
+title: Install Guide
+---
+<div id="content">
+<h2>Choose how you want to run Nebulosa</h2>
+<p>Nebulosa is a single application divided into Client ad Server, this was by design to have it act as a BNC if needed (and because browsers don't like IRC connection).</p>
+<p>There are two ways of running and using Nebulosa, you can either:</p>
+<ul>
+	<li>Host the server locally and use it just like a normal IRC client</li>
+	<li>Host the server remotely and use it like a BNC with a Web Client</li>
+</ul>
+<p>Because of this, this guide will often refer to Server and Client as two separate machines, however if you want to run the server locally just assume they're the same thing.</p>
+
+<h2><span style="color:#777;">(Server)</span> Install prerequisites</h2>
+<p>Nebulosa runs on <a href="http://nodejs.org/">Node.js</a>, which is the main requirement to run it.<br />You'll need to install it before proceeding <grey>(source and binaries in the official website.)</grey><br />If you're on Linux, good chances are that it's in one of your repositories <grey>(for example, it's in <a href="http://fedoraproject.org/wiki/EPEL">EPEL</a> if you use any RHEL-based distribution.)</grey></p>
+<p>Nebulosa is hosted on <a href="http://github.com/">GitHub</a>, so download and install <a href="http://git-scm.com/">Git</a> as well</p>
+
+<h2><span style="color:#777;">(Server)</span> Install Nebulosa and required modules</h2>
+<p>To download Nebulosa, open a shell, browse to your path of choice and then execute the following command, A "Nebulosa" folder will be created with all the files inside.
+<code>git clone git@github.com:Hamcha/Nebulosa.git</code>
+</p>
+<p>Browse into the folder where Nebulosa files have been put and execute this command to install all the required Node.js modules:</p>
+<code>npm install</code>
+<p><small>As one of the dependencies require Git to be downloaded (node-irc) <b>please</b> be sure to have it installed.</small></p>
+
+<h2><span style="color:#777;">(Server)</span> Configuring Nebulosa</h2>
+<p>The configuration file of Nebulosa is called <m>config.coffee</m>. It's pretty well commented so you should have no problem figuring out what to change and how.</p>
+
+<h2><span style="color:#777;">(Server)</span> Running Nebulosa</h2>
+<p>To run Nebulosa you can either use the provided run scripts (<m>run.sh</m> and <m>run.bat</m>, depending on what platform you are) or just execute:</p>
+<code>coffee main.coffee</code>
+
+<h2><span style="color:#777;">(Client)</span> Opening the Web Interface</h2>
+<p>Once Nebulosa is running open a browser and go to <m>http://&lt;SERVER_IP&gt;:&lt;PORT&gt;</m>. If you are running the server locally it's likely the IP is likely to be <b>"localhost"</b> and the default port on <m>config.coffee</m> is <b>8033</b></p>
+</div>
