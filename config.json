@@ -1,0 +1,16 @@
+{
+	"Listen" : "127.0.0.1:8012",
+	"Servers": {
+		"ponychat" : {
+			"ServName" : "Ponychat",
+			"Address"  : "irc.ponychat.net:6667",
+
+			"Username" : "nebudue",
+			"Nickname" : "nebudue",
+			"Altnick"  : "nebutre",
+			"Realname" : "Nebudue Client",
+
+			"Channels" : ["#testbass", "#testbass2"]
+		}
+	}	
+}
