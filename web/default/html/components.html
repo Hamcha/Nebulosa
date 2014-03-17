@@ -1,0 +1,193 @@
+<link rel="import" href="/bower_components/polymer/polymer.html" />
+
+<polymer-element name="x-chat-message" attributes="username message timestamp">
+<template>
+<style>
+:host { display: list-item; width: 100%; }
+
+:host(.even) { background: #fcfcfc; }
+:host(.odd)  { background: #f5f5f5; }
+
+div#chatMessage { position: relative; }
+div#chatMessage > div#message {
+	display: table-cell;
+	padding-left: 5px; padding-right: 80px;
+	word-wrap: break-word; word-break: break-all;
+}
+
+div#chatMessage > div#username {
+	display: table-cell; text-align: right; white-space: nowrap;
+    background-color: #e3e3e3;
+	width: 100px; max-width: 100px; height: 22px;
+	padding: 5px; margin: -5px 4px -12px -4px;
+	border-right: 5px solid #e3e3e3; font-weight: bold;
+	text-overflow: ellipsis; overflow: hidden;
+}
+
+div#chatMessage > div#timestamp {
+	position: absolute; right: 0; top: 5px;
+	width: 55px; opacity: .5;
+}
+</style>
+<div id="chatMessage">
+	<div id="username"></div>
+	<div id="message"></div>
+	<div id="timestamp">{{timestamp}}</div>
+</div>
+</template>
+<script>
+var sum = function(chr, x) {
+    if (x < 1) return 0;
+    else       return chr.charCodeAt(x - 1) + sum(chr, x - 1);
+};
+
+var hslToRgb = function(h, s, l) {
+    var b, g, hue2rgb, p, q, r;
+    if (s === 0) {
+        r = g = b = l;
+    } else {
+        hue2rgb = function(p, q, t) {
+            if (t < 0) { t += 1; }
+            if (t > 1) { t -= 1; }
+            if (t < 1 / 6) { return p + (q - p) * 6 * t; }
+            if (t < 1 / 2) { return q; }
+            if (t < 2 / 3) { return p + (q - p) * (2 / 3 - t) * 6; }
+            return p;
+        };
+        q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1 / 3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1 / 3);
+    }
+    return [r * 255, g * 255, b * 255];
+};
+
+var colorNick = function(nick) {
+    var cVals, lumC, ordVal, outBlu, outGrn, outRed;
+    ordVal = (sum(nick, nick.length) + 300) % 256;
+    lumC   = (sum(nick, nick.length) + 631) % 100;
+    cVals  = hslToRgb(ordVal / 256, 0.9, 0.2 + lumC / 500);
+    outRed = (Math.floor(cVals[0])).toString(16);
+    outGrn = (Math.floor(cVals[1])).toString(16);
+    outBlu = (Math.floor(cVals[2])).toString(16);
+    if (outRed.length < 2) { outRed = "0" + outRed; }
+    if (outGrn.length < 2) { outGrn = "0" + outGrn; }
+    if (outBlu.length < 2) { outBlu = "0" + outBlu; }
+    return "#" + outRed + outGrn + outBlu;
+};
+
+var htmlEntities = function(str) {
+    str = str.replace(/&/g, '&');
+    str = str.replace(/</g, '<');
+    str = str.replace(/>/g, '>');
+    str = str.replace(/"/g, '"');
+    return str;
+};
+
+Polymer('x-chat-message', {
+	username  : " ",
+	message   : " ",
+	timestamp : "00:00:00",
+    set: function(uname, mess, time) {
+        this.$.username.innerHTML = "<span style='color:"+colorNick(uname)+"'>"+uname+"</span>";
+        this.$.message.innerHTML = htmlEntities(mess);
+        this.timestamp = time;
+    }
+});
+</script>
+</polymer-element>
+
+<polymer-element name="x-server-block" attributes="serverName">
+<template>
+<style>
+div.server {
+    text-align: center; padding: 3px 0; margin: 5px;
+    font-size: 0.9em;
+}
+
+div.channel {
+    text-align: left; padding: 3px 5px; margin: 5px 10px;
+    background-color: #eee;
+    box-shadow: 0 0 0 1px #ccc; border-bottom: 1px solid #fff;
+    color: #666; font-size: 0.9em;
+}
+
+div.active {
+    color: #fff; background-color: #39f;
+    box-shadow: 0 0 0 1px #79a;
+}
+
+hr { border: 0;}
+</style>
+<div class="server">{{serverName}}</div>
+<div id="channels"></div>
+<hr />
+</template>
+<script>
+Polymer('x-server-block', {
+    serverName : "Unnamed server",
+    server     : {},
+    selected   : "",
+    channels   : {},
+    get chanArray() {
+        var chans = [];
+        for (var ch in this.channels)
+            chans.push(this.channels[ch]);
+        return chans;
+    },
+    set: function (server) {
+        this.server = server;
+        for (var channel in server.Channels) {
+            var item = document.createElement("div");
+            item.className = "channel";
+            item.innerHTML =  channel;
+            this.$.channels.appendChild(item);
+            this.channels[channel] = item;
+        }
+    },
+    select: function (cname) {
+        this.channels[cname].className = "channel active";
+        this.selected = cname;
+    },
+    deselect: function () {
+        this.channels[this.selected].className = "channel";
+        this.selected = "";
+    }
+});
+</script>
+</polymer-element>
+
+<polymer-element name="x-channel-box">
+<template>
+<style>
+ul#chatContainer {
+    position: absolute; bottom: 0;
+    font-size: 0.9em; margin-bottom: 0; padding: 0;
+    background-color: #f5f5f5; color: #444;
+    vertical-align: bottom; list-style: none;
+    display: inline-block; width: 100%; max-height: 100%;
+}
+</style>
+<ul id="chatContainer">
+</ul>
+</template>
+<script>
+Polymer('x-channel-box', {
+    addMessage : function (message) {
+        if (this.$.chatContainer.children.length % 2)
+            message.className="odd";
+        else
+            message.className="even";
+
+        this.$.chatContainer.appendChild(message);
+    },
+    ready : function () { this.blur(); },
+    blur  : function () { this.$.chatContainer.style.display = "none";  },
+    focus : function () { this.$.chatContainer.style.display = "block"; },
+    get messages() {
+        return this.$.chatContainer.children;
+    },
+});
+</script>
+</polymer-element>

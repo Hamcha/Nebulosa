@@ -8,15 +8,24 @@ import (
 	"time"
 )
 
+type Channel struct {
+	Name  string
+	Modes string
+	Users []struct {
+		User  User
+		Modes string
+	}
+	Topic   string
+	TopicBy User
+}
+
 type Client struct {
 	Socket     net.Conn
-	Username   string
-	Nickname   string
-	Altnick    string
-	Realname   string
 	Proxyaddr  string
-	Channels   []string
+	Serveraddr string
+	Channels   map[string]Channel
 	ServerName string
+	ServerInfo Server
 	Sid        string
 }
 
@@ -36,10 +45,20 @@ type Message struct {
 type ClientMessage struct {
 	ServerId string
 	Message  Message
-	DateTime string
+	DateTime int64
 }
 
-func (c Client) Connect(server string) (error, chan ClientMessage) {
+type Server struct {
+	ServName string
+	Address  string
+	Username string
+	Nickname string
+	Altnick  string
+	Realname string
+	Channels []string
+}
+
+func (c *Client) Connect(server string) (error, chan ClientMessage) {
 	fmt.Printf("[%s] Trying to connect to %s (%s)..\r\n", c.Sid, c.ServerName, server)
 	// Connect to server
 	conn, err := net.Dial("tcp", server)
@@ -47,17 +66,19 @@ func (c Client) Connect(server string) (error, chan ClientMessage) {
 		return err, nil
 	}
 	// Send USER/NICK command to auth
-	fmt.Fprintf(conn, "USER %s 8 * :%s\r\n", c.Username, c.Realname)
-	fmt.Fprintf(conn, "NICK %s\r\n", c.Nickname)
-	// Setup socket attribute
+	fmt.Fprintf(conn, "USER %s 8 * :%s\r\n", c.ServerInfo.Username, c.ServerInfo.Realname)
+	fmt.Fprintf(conn, "NICK %s\r\n", c.ServerInfo.Nickname)
+	// Setup socket attribute and other variables
 	c.Socket = conn
+	c.Serveraddr = server
+	c.Channels = make(map[string]Channel)
 	// Start receiving loop
 	messages := make(chan ClientMessage)
 	go receive(c, messages)
 	return nil, messages
 }
 
-func receive(client Client, messages chan ClientMessage) {
+func receive(client *Client, messages chan ClientMessage) {
 	// Setup reader
 	b := bufio.NewReader(client.Socket)
 	defer client.Socket.Close()
@@ -85,7 +106,7 @@ func receive(client Client, messages chan ClientMessage) {
 	}
 }
 
-func handle(c Client, parts []string, text string, messages chan ClientMessage) {
+func handle(c *Client, parts []string, text string, messages chan ClientMessage) {
 	// If PING autorespond PONG and quit
 	if parts[0] == "PING" {
 		fmt.Fprintf(c.Socket, "PONG %s\r\n", text)
@@ -94,22 +115,32 @@ func handle(c Client, parts []string, text string, messages chan ClientMessage) 
 	// Create message var
 	var msg Message
 	msg.Source = parseUser(parts[0])
+
 	if len(parts) > 1 {
 		msg.Command = parts[1]
 	}
 	if len(parts) > 2 {
 		msg.Target = parts[2]
 	}
+
 	msg.Text = text
+
 	// If 376 (End of MOTD) then join all the channels
 	if msg.Command == "376" {
 		fmt.Printf("[%s] Connected! joining channels.. \r\n", c.Sid)
-		for _, name := range c.Channels {
+		for _, name := range c.ServerInfo.Channels {
 			fmt.Fprintf(c.Socket, "JOIN %s\r\n", name)
 		}
 	}
+
+	// Have we joined somewhere?
+	if msg.Command == "JOIN" && msg.Source.Nickname == c.ServerInfo.Nickname {
+		fmt.Fprintf(c.Socket, "NAMES %s\r\n", msg.Target)
+		c.Channels[msg.Target] = Channel{Name: msg.Target}
+	}
+
 	// Pass it to the clients
-	messages <- ClientMessage{ServerId: c.Sid, Message: msg, DateTime: time.Unix(time.Now())}
+	messages <- ClientMessage{ServerId: c.Sid, Message: msg, DateTime: time.Now().Unix()}
 }
 
 func parseUser(s string) User {
@@ -125,7 +156,7 @@ func parseUser(s string) User {
 	return User{Nickname: nick, Username: user, Host: host}
 }
 
-func prepare(msg Message) string {
+func Prepare(msg Message) string {
 	// Create one irc full message from struct
 	out := msg.Command
 	if msg.Target != "" {

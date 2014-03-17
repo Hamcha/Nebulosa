@@ -1,0 +1,13 @@
+{
+  "name": "nebudue",
+  "version": "0.0.0",
+  "homepage": "https://github.com/Hamcha/Nebulosa",
+  "moduleType": [
+    "globals"
+  ],
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "polymer": "~0.2.1"
+  }
+}
