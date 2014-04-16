@@ -8,6 +8,10 @@ Interface = {
     currentChannel : "",
 
     init : function (serverList) {
+        // Create click handler for channel boxes
+        var onchange = function (server) {
+            return function(cname) { Interface.switchTo(server, cname); };
+        };
         // For every given server
         for (var server in serverList) {
             // Create server block
@@ -16,6 +20,7 @@ Interface = {
             item.serverName = serverList[server].ServerInfo.ServName;
             item.id = server;
             item.set(serverList[server]);
+            item.onChannelClick = onchange(server);
             // Add it to the DOM
             document.getElementById("channels").appendChild(item);
             // Create the server object
@@ -71,8 +76,8 @@ Interface = {
         // Change server selection if changed
         if (Interface.currentServer != sname) {
             Interface.servers[Interface.currentServer].server.deselect();
-            Interface.servers[sname].server.select(cname);
         }
+        Interface.servers[sname].server.select(cname);
         // Change channel selection
         Interface.servers[Interface.currentServer].channels[Interface.currentChannel].blur();
         Interface.servers[sname].channels[cname].focus();

@@ -8,13 +8,15 @@ import (
 	"time"
 )
 
-type Channel struct {
-	Name  string
+type UserItem struct {
+	User  User
 	Modes string
-	Users []struct {
-		User  User
-		Modes string
-	}
+}
+
+type Channel struct {
+	Name    string
+	Modes   string
+	Users   []UserItem
 	Topic   string
 	TopicBy User
 }
@@ -89,6 +91,7 @@ func receive(client *Client, messages chan ClientMessage) {
 			panic(err)
 		}
 		line := string(bytes)
+		fmt.Printf(">> %s\r\n", line)
 		// Check for : (irc string)
 		cmdtxt := strings.Index(line[1:], ":")
 		var parts []string
@@ -133,6 +136,18 @@ func handle(c *Client, parts []string, text string, messages chan ClientMessage)
 		}
 	}
 
+	// If 353 (NAMES list) then fill the User array for the given channel
+	if msg.Command == "353" {
+		msg.Command = "NAMES"
+		msg.Target = parts[3]
+		names := strings.Split(text, " ")
+		c.Channels[msg.Target].Users = make([]UserItem, len(names))
+		for i, nick := range names {
+			user, mode := SplitUname(nick)
+			c.Channels[msg.Target].Users[i] = UserItem{User: user, Modes: mode}
+		}
+	}
+
 	// Have we joined somewhere?
 	if msg.Command == "JOIN" && msg.Source.Nickname == c.ServerInfo.Nickname {
 		fmt.Fprintf(c.Socket, "NAMES %s\r\n", msg.Target)
@@ -166,4 +181,17 @@ func Prepare(msg Message) string {
 		out += " :" + msg.Text
 	}
 	return out + "\r\n"
+}
+
+func SplitUname(nname string) (User, string) {
+	modeIndex := strings.LastIndexAny(nname, "~&@%+!")
+	var mode string
+	if modeIndex < 0 {
+		mode = ""
+	} else {
+		mode := nname[0 : modeIndex+1]
+	}
+	nick := nname[modeIndex+1:]
+	user := User{Nickname: nick}
+	return user, mode
 }

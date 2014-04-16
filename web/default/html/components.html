@@ -110,7 +110,7 @@ div.channel {
     text-align: left; padding: 3px 5px; margin: 5px 10px;
     background-color: #eee;
     box-shadow: 0 0 0 1px #ccc; border-bottom: 1px solid #fff;
-    color: #666; font-size: 0.9em;
+    color: #666; font-size: 0.9em; cursor: pointer;
 }
 
 div.active {
@@ -130,6 +130,7 @@ Polymer('x-server-block', {
     server     : {},
     selected   : "",
     channels   : {},
+    onChannelClick : null,
     get chanArray() {
         var chans = [];
         for (var ch in this.channels)
@@ -138,15 +139,21 @@ Polymer('x-server-block', {
     },
     set: function (server) {
         this.server = server;
+        var that    = this;
+        var changedLoop = function(channel) {
+            return function () { if (that.onChannelClick) that.onChannelClick(channel); };
+        };
         for (var channel in server.Channels) {
             var item = document.createElement("div");
             item.className = "channel";
             item.innerHTML =  channel;
+            item.onclick   =  changedLoop(channel);
             this.$.channels.appendChild(item);
             this.channels[channel] = item;
         }
     },
     select: function (cname) {
+        if (this.selected) this.deselect();
         this.channels[cname].className = "channel active";
         this.selected = cname;
     },
