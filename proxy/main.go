@@ -16,7 +16,14 @@ var conn net.Conn
 
 var namespaces map[string]*socketio.NameSpace
 
+const BUFFER_SIZE = 50
+
+var buffer map[string][]ClientMessage
+
+var allowBufferCmd = []string{"PRIVMSG", "NOTICE", "JOIN", "PART", "QUIT", "NICK", "TOPIC"}
+
 func onConnect(ns *socketio.NameSpace) {
+	// Request greeting
 	namespaces[ns.Id()] = ns
 	fmt.Fprintln(conn, "GREET "+ns.Id())
 }
@@ -40,6 +47,9 @@ func main() {
 
 	// Create namespace map
 	namespaces = make(map[string]*socketio.NameSpace)
+
+	// Create buffer map
+	buffer = make(map[string][]ClientMessage)
 
 	// Connect to Nebulosa
 	conn, err = net.Dial("tcp", conf.Server)
@@ -99,12 +109,39 @@ func receive(c net.Conn) {
 }
 
 func handle(msgType string, msgContent ClientMessage) {
+	// Do we need to save it into the buffer?
+	if isin(msgContent.Message.Command, allowBufferCmd) {
+		// Get buffer id
+		target := msgContent.ServerId + "." + msgContent.Message.Target
+		// Create buffer if it doesn't exist
+		if _, ok := buffer[target]; !ok {
+			buffer[target] = make([]ClientMessage, 0, BUFFER_SIZE)
+		}
+		// Put message into buffer
+		buffer[target] = append(buffer[target], msgContent)
+	}
+
+	// Broadcast to connected clients
 	sio.Broadcast(strings.ToLower(msgType), msgContent)
 }
 
 func greet(msgContent Greet) {
 	// Check if namespace is still available
 	if val, ok := namespaces[msgContent.ClientId]; ok {
+		// Send greeting
 		val.Emit("greet", msgContent.Servers)
+		// Send buffers
+		for _, v := range buffer {
+			val.Emit("buffer", v)
+		}
 	}
+}
+
+func isin(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }

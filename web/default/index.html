@@ -8,15 +8,12 @@
 	<link href="/css/screen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
-	<div id="header">Topic title here <small>set by Usernamehere</small></div>
+	<div id="header"><div id="topic"></div> <small id="topicBy"></small></div>
 	<div id="channels"></div>
 	<div id="chatWrapper"></div>
-	<ul id="users">
-		<li>Hamcha</li>
-		<li>Someone</li>
-	</ul>
+	<div id="users"></div>
 	<div id="messageBar">
-		<div id="messageWrapper"><input id="messageBox" type="text" /></div>
+		<div id="messageWrapper"><input id="messageBox" type="text" onkeyup="onkeyup(event)" /></div>
 	</div>
 	<script src="/js/socket.io.js"></script>
 	<script src="/js/utils.js"></script>

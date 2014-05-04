@@ -25,7 +25,8 @@ div#chatMessage > div#username {
 }
 
 div#chatMessage > div#timestamp {
-	position: absolute; right: 0; top: 5px;
+    text-align: right;
+	position: absolute; right: 10px; top: 5px;
 	width: 55px; opacity: .5;
 }
 </style>
@@ -93,6 +94,90 @@ Polymer('x-chat-message', {
         this.$.username.innerHTML = "<span style='color:"+colorNick(uname)+"'>"+uname+"</span>";
         this.$.message.innerHTML = htmlEntities(mess);
         this.timestamp = time;
+    }
+});
+</script>
+</polymer-element>
+
+<polymer-element name="x-chat-action" attributes="username message timestamp">
+<template>
+<style>
+:host {
+    display: list-item; padding: 5px; min-height: 20px;
+    background-color: #def; color: #369;
+}
+
+div#chatNotice { position: relative; }
+div#chatNotice > div#message {
+    display: table-cell;
+    padding-left: 5px; padding-right: 80px;
+    word-wrap: break-word; word-break: break-all;
+}
+div#chatNotice > div#timestamp {
+    text-align: right;
+    position: absolute; right: 5px; top: 0;
+    width: 55px; opacity: .5;
+}
+</style>
+<div id="chatNotice">
+    <div id="message"><b>{{username}}</b> {{message}}</div>
+    <div id="timestamp">{{timestamp}}</div>
+</div>
+</template>
+<script>
+Polymer('x-chat-action', {
+    username  : " ",
+    message   : " ",
+    timestamp : "00:00:00"
+});
+</script>
+</polymer-element>
+
+<polymer-element name="x-chat-notice" attributes="username target message timestamp">
+<template>
+<style>
+:host {
+    display: list-item; padding: 5px; min-height: 20px;
+    background-color: #f2fae3; color: #659f13;
+}
+
+div#chatNotice { position: relative; }
+div#chatNotice > div#message {
+    display: table-cell;
+    padding-left: 5px; padding-right: 80px;
+    word-wrap: break-word; word-break: break-all;
+}
+div#chatNotice > div#timestamp {
+    text-align: right;
+    position: absolute; right: 5px; top: 0;
+    width: 55px; opacity: .5;
+}
+</style>
+<div id="chatNotice">
+    <div id="message"></div>
+    <div id="timestamp">{{timestamp}}</div>
+</div>
+</template>
+<script>
+var htmlEntities = function(str) {
+    str = str.replace(/&/g, '&');
+    str = str.replace(/</g, '<');
+    str = str.replace(/>/g, '>');
+    str = str.replace(/"/g, '"');
+    return str;
+};
+
+Polymer('x-chat-notice', {
+    username  : " ",
+    target    : " ",
+    message   : " ",
+    timestamp : "00:00:00",
+    set: function(uname, target, mess, time) {
+        this.username = uname;
+        this.target = target;
+        this.message = mess;
+        this.timestamp = time;
+        this.$.message.innerHTML = htmlEntities("Notice (<b>" + uname + " &#8594; " + target + "</b>) &nbsp; " + mess);
     }
 });
 </script>
@@ -189,12 +274,60 @@ Polymer('x-channel-box', {
 
         this.$.chatContainer.appendChild(message);
     },
+    topic : "",
+    topicBy : "",
+    setTopic : function (_topic, _topicBy) {
+        this.topic = _topic;
+        this.topicBy = _topicBy.Nickname + "!" + _topicBy.Username + "@" + _topicBy.Host;
+    },
     ready : function () { this.blur(); },
     blur  : function () { this.$.chatContainer.style.display = "none";  },
     focus : function () { this.$.chatContainer.style.display = "block"; },
     get messages() {
         return this.$.chatContainer.children;
-    },
+    }
 });
 </script>
+</polymer-element>
+
+<polymer-element name="x-user-list">
+<template>
+<style>
+</style>
+<div id="list">
+</div>
+</template>
+<script>
+Polymer('x-user-list', {
+    ready : function () { this.blur(); },
+    blur  : function () { this.$.list.style.display = "none";  },
+    focus : function () { this.$.list.style.display = "block"; },
+    init  : function (users) {
+        for (var i = 0; i < users.length; i++) {
+            var user = document.createElement("x-user-item");
+            var item = users[i];
+            user.modes = item.Modes;
+            user.host = item.User.Host;
+            user.nickname = item.User.Nickname;
+            user.username = item.User.Username;
+            this.$.list.appendChild(user);
+        }
+    },
+    get users() {
+        return this.$.list.children;
+    }
+});
+</script>
+</polymer-element>
+
+<polymer-element name="x-user-item" noscript attributes="modes nickname host username">
+<template>
+<style>
+:host {
+    padding: 5px 7px; margin: 1px; border-bottom: 1px solid #ddd;
+    background-color: #eee; font-size: 0.95em; display: block;
+}
+</style>
+{{nickname}}
+</template>
 </polymer-element>

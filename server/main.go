@@ -65,7 +65,7 @@ func main() {
 
 type GreetServers struct {
 	ServerInfo irc.Server
-	Channels   map[string]irc.Channel
+	Channels   map[string]*irc.Channel
 }
 
 type Greet struct {

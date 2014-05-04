@@ -25,7 +25,7 @@ type Client struct {
 	Socket     net.Conn
 	Proxyaddr  string
 	Serveraddr string
-	Channels   map[string]Channel
+	Channels   map[string]*Channel
 	ServerName string
 	ServerInfo Server
 	Sid        string
@@ -73,7 +73,7 @@ func (c *Client) Connect(server string) (error, chan ClientMessage) {
 	// Setup socket attribute and other variables
 	c.Socket = conn
 	c.Serveraddr = server
-	c.Channels = make(map[string]Channel)
+	c.Channels = make(map[string]*Channel)
 	// Start receiving loop
 	messages := make(chan ClientMessage)
 	go receive(c, messages)
@@ -91,7 +91,7 @@ func receive(client *Client, messages chan ClientMessage) {
 			panic(err)
 		}
 		line := string(bytes)
-		fmt.Printf(">> %s\r\n", line)
+		//fmt.Printf(">> %s\r\n", line)
 		// Check for : (irc string)
 		cmdtxt := strings.Index(line[1:], ":")
 		var parts []string
@@ -139,19 +139,25 @@ func handle(c *Client, parts []string, text string, messages chan ClientMessage)
 	// If 353 (NAMES list) then fill the User array for the given channel
 	if msg.Command == "353" {
 		msg.Command = "NAMES"
-		msg.Target = parts[3]
+		msg.Target = parts[4]
 		names := strings.Split(text, " ")
-		c.Channels[msg.Target].Users = make([]UserItem, len(names))
+		channel, ok := c.Channels[msg.Target]
+		if !ok {
+			return
+		}
+		channel.Users = make([]UserItem, len(names))
 		for i, nick := range names {
 			user, mode := SplitUname(nick)
-			c.Channels[msg.Target].Users[i] = UserItem{User: user, Modes: mode}
+			channel.Users[i] = UserItem{User: user, Modes: mode}
 		}
 	}
 
 	// Have we joined somewhere?
 	if msg.Command == "JOIN" && msg.Source.Nickname == c.ServerInfo.Nickname {
 		fmt.Fprintf(c.Socket, "NAMES %s\r\n", msg.Target)
-		c.Channels[msg.Target] = Channel{Name: msg.Target}
+		channel := new(Channel)
+		channel.Name = msg.Target
+		c.Channels[msg.Target] = channel
 	}
 
 	// Pass it to the clients
@@ -189,7 +195,7 @@ func SplitUname(nname string) (User, string) {
 	if modeIndex < 0 {
 		mode = ""
 	} else {
-		mode := nname[0 : modeIndex+1]
+		mode = nname[0 : modeIndex+1]
 	}
 	nick := nname[modeIndex+1:]
 	user := User{Nickname: nick}

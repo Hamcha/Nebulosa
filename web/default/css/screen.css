@@ -21,7 +21,7 @@ div#messageBar {
 
 div#messageWrapper {
 	position: absolute; bottom: 4px;
-	left: 160px; right: 160px; padding: 0; margin: 0;
+	left: 160px; right: 170px; padding: 0; margin: 0;
 }
 
 input#messageBox {
@@ -34,14 +34,9 @@ div#channels {
 	width: 150px; border-right: 1px solid #ddd;
 }
 
-ul#users {
+div#users {
 	position: fixed; top: 41px; bottom: 41px; right: 0;
 	width: 150px; border-left: 1px solid #ddd;
-}
-
-ul#users li {
-	padding: 5px 7px; margin: 1px; border-bottom: 1px solid #ddd;
-	background-color: #eee; font-size: 0.95em;
 }
 
 div#chatWrapper {
