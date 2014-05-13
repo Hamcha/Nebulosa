@@ -32,6 +32,25 @@ func onDisconnect(ns *socketio.NameSpace) {
 	delete(namespaces, ns.Id())
 }
 
+func onCommand(ns *socketio.NameSpace, server, command, target, text string) {
+	msg := Message{
+		Command: command,
+		Target:  target,
+		Text:    text,
+	}
+	cmsg := ClientMessage{
+		ServerId: server,
+		Message:  msg,
+	}
+	val, err := json.Marshal(cmsg)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Fprintln(conn, "EXECUTE "+string(val))
+}
+
 func main() {
 	// Load config
 	var conf Config
@@ -69,6 +88,7 @@ func main() {
 	// Setup event handlers
 	sio.On("connect", onConnect)
 	sio.On("disconnect", onDisconnect)
+	sio.On("command", onCommand)
 
 	sio.Handle("/", http.FileServer(http.Dir("./web/"+conf.Theme+"/")))
 	http.ListenAndServe(conf.Listen, sio)

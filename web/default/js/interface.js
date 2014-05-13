@@ -1,5 +1,5 @@
 /*jshint undef:true,unused:true,browser:true,devel:true*/
-/*global Interface: true*/
+/*global Interface: true,makeCommand,socket*/
 
 Interface = {
 
@@ -70,12 +70,19 @@ Interface = {
 				return ("0" + e).slice(-2);
 		}).join(":");
 
+		var target = "";
+
 		switch (messageData.Message.Command) {
 			// Chat message
 			case "PRIVMSG":
 				// Add chat message to its window
 				var message = document.createElement("x-chat-message");
-				message.set(messageData.Message.Source.Nickname, messageData.Message.Text, time);
+				// Check who wrote the last message (to hide nickname)
+				var hide = false;
+				var msgs = server.channels[messageData.Message.Target].messages;
+				if (msgs.length > 0)
+					hide = msgs[msgs.length - 1].username == messageData.Message.Source.Nickname;
+				message.set(messageData.Message.Source.Nickname, messageData.Message.Text, time, hide);
 				server.channels[messageData.Message.Target].addMessage(message);
 				break;
 			// Chat notice
@@ -92,7 +99,8 @@ Interface = {
 				join.username  = messageData.Message.Source.Nickname;
 				join.message   = "has joined the channel";
 				join.timestamp = time;
-				server.channels[messageData.Message.Text].addMessage(join);
+				target = messageData.Message.Text !== "" ? messageData.Message.Text : messageData.Message.Target;
+				server.channels[target].addMessage(join);
 				break;
 			// Channel part
 			case "PART":
@@ -101,7 +109,8 @@ Interface = {
 				part.username  = messageData.Message.Source.Nickname;
 				part.message   = "has left the channel";
 				part.timestamp = time;
-				server.channels[messageData.Message.Target].addMessage(part);
+				target = messageData.Message.Text !== "" ? messageData.Message.Text : messageData.Message.Target;
+				server.channels[target].addMessage(part);
 				break;
 			// Topic change
 			case "TOPIC":
@@ -152,5 +161,26 @@ Interface = {
 		document.getElementById("topic").innerHTML = Interface.servers[sname].channels[cname].topic;
 		if (Interface.servers[sname].channels[cname].topic !== "")
 			document.getElementById("topicBy").innerHTML = "set by " + Interface.servers[sname].channels[cname].topicBy;
+	},
+
+	onKey : function (event) {
+		var text = document.getElementById("messageBox").value;
+		var out = {};
+		switch (event.keyCode) {
+			case 13: // Pressed ENTER
+				event.preventDefault();
+				if (text.length > 1 && text[0] == "/" && text[1] != "/") {
+					out = makeCommand(text);
+				} else {
+					out = {
+						"Command":"PRIVMSG",
+						"Target" : Interface.currentChannel,
+						"Text"   : text.replace(/^\/\//,"/")
+					};
+				}
+				console.log(out);
+				socket.emit("command",Interface.currentServer,out.Command,out.Target,out.Text);
+				break;
+		}
 	}
 };

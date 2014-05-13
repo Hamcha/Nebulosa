@@ -18,7 +18,7 @@ div#chatMessage > div#message {
 div#chatMessage > div#username {
 	display: table-cell; text-align: right; white-space: nowrap;
     background-color: #e3e3e3;
-	width: 100px; max-width: 100px; height: 22px;
+	width: 100px; max-width: 100px; line-height: 1.5em;
 	padding: 5px; margin: -5px 4px -12px -4px;
 	border-right: 5px solid #e3e3e3; font-weight: bold;
 	text-overflow: ellipsis; overflow: hidden;
@@ -90,10 +90,13 @@ Polymer('x-chat-message', {
 	username  : " ",
 	message   : " ",
 	timestamp : "00:00:00",
-    set: function(uname, mess, time) {
-        this.$.username.innerHTML = "<span style='color:"+colorNick(uname)+"'>"+uname+"</span>";
-        this.$.message.innerHTML = htmlEntities(mess);
+    set: function(uname, mess, time, hide) {
+        this.username = uname;
+        this.message = mess;
         this.timestamp = time;
+        // Set visual style
+        this.$.username.innerHTML = hide ? "&nbsp;" : "<span style='color:"+colorNick(uname)+"'>"+uname+"</span>";
+        this.$.message.innerHTML = htmlEntities(mess);
     }
 });
 </script>

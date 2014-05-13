@@ -3,7 +3,7 @@
 
 window.addEventListener('polymer-ready', function() {
 
-	socket = io.connect();
+	window.socket = io.connect();
 
 	socket.on("irc", function (message) {
 		handleIRC(message);
