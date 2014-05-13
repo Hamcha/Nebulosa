@@ -4,8 +4,17 @@
 Interface = {
 
 	servers : {},
-	currentServer  : "",
-	currentChannel : "",
+	currentServerId  : "",
+	currentChannelId : "",
+	get currentServer() {
+		return Interface.servers[Interface.currentServerId];
+	},
+	get currentChannel() {
+		return Interface.currentServer.channels[Interface.currentChannelId];
+	},
+	get currentUserList() {
+		return Interface.currentServer.users[Interface.currentChannelId];
+	},
 
 	init : function (serverList) {
 		// Create click handler for channel boxes
@@ -41,13 +50,13 @@ Interface = {
 		// Set default server and channel if available
 		var servers = Object.keys(Interface.servers);
 		if (servers.length > 0) {
-			Interface.currentServer = servers[0];
-			var chans = Object.keys(Interface.servers[Interface.currentServer].channels);
+			Interface.currentServerId = servers[0];
+			var chans = Object.keys(Interface.currentServer.channels);
 			if (chans.length > 0) {
-				Interface.currentChannel = chans[0];
-				Interface.servers[Interface.currentServer].server.select(Interface.currentChannel);
-				Interface.servers[Interface.currentServer].channels[Interface.currentChannel].focus();
-				Interface.servers[Interface.currentServer].users[Interface.currentChannel].focus();
+				Interface.currentChannelId = chans[0];
+				Interface.currentServer.server.select(Interface.currentChannelId);
+				Interface.currentChannel.focus();
+				Interface.currentUserList.focus();
 			}
 		}
 	},
@@ -90,7 +99,7 @@ Interface = {
 				// Add notice to active window
 				var notice = document.createElement("x-chat-notice");
 				notice.set(messageData.Message.Source.Nickname, messageData.Message.Target, messageData.Message.Text, time);
-				Interface.servers[Interface.currentServer].channels[Interface.currentChannel].addMessage(notice);
+				Interface.currentChannel.addMessage(notice);
 				break;
 			// Channel join
 			case "JOIN":
@@ -115,8 +124,8 @@ Interface = {
 			// Topic change
 			case "TOPIC":
 				server.channels[messageData.Message.Target].setTopic(messageData.Message.Text,messageData.Message.Source);
-				if (Interface.currentServer  === messageData.ServerId &&
-					Interface.currentChannel === messageData.Message.Target) {
+				if (Interface.currentServerId  === messageData.ServerId &&
+					Interface.currentChannelId === messageData.Message.Target) {
 					document.getElementById("topic").innerHTML = server.channels[messageData.Message.Target].topic;
 					if (server.channels[messageData.Message.Target].topic !== "")
 						document.getElementById("topicBy").innerHTML = "set by " + server.channels[messageData.Message.Target].topicBy;
@@ -142,20 +151,20 @@ Interface = {
 
 	switchTo : function (sname, cname) {
 		// Change server selection if changed
-		if (Interface.currentServer !== sname) {
-			Interface.servers[Interface.currentServer].server.deselect();
+		if (Interface.currentServerId !== sname) {
+			Interface.currentServer.server.deselect();
 		}
 		Interface.servers[sname].server.select(cname);
 
 		// Change channel selection
-		Interface.servers[Interface.currentServer].channels[Interface.currentChannel].blur();
+		Interface.currentChannel.blur();
 		Interface.servers[sname].channels[cname].focus();
-		Interface.servers[Interface.currentServer].users[Interface.currentChannel].blur();
+		Interface.currentUserList.blur();
 		Interface.servers[sname].users[cname].focus();
 
 		// Change current server / channel value
-		Interface.currentServer  = sname;
-		Interface.currentChannel = cname;
+		Interface.currentServerId  = sname;
+		Interface.currentChannelId = cname;
 
 		// Change topic if there is one
 		document.getElementById("topic").innerHTML = Interface.servers[sname].channels[cname].topic;
@@ -173,13 +182,17 @@ Interface = {
 					out = makeCommand(text);
 				} else {
 					out = {
+						"Source" : {
+							"Nickname" : Interface.currentServer.server.info.Nickname,
+							"Username" : Interface.currentServer.server.info.Username
+						},
 						"Command":"PRIVMSG",
-						"Target" : Interface.currentChannel,
+						"Target" : Interface.currentChannelId,
 						"Text"   : text.replace(/^\/\//,"/")
 					};
 				}
-				console.log(out);
-				socket.emit("command",Interface.currentServer,out.Command,out.Target,out.Text);
+				socket.emit("command",Interface.currentServerId,out);
+				document.getElementById("messageBox").value = "";
 				break;
 		}
 	}

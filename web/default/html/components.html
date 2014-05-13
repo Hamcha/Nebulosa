@@ -225,6 +225,7 @@ Polymer('x-server-block', {
             chans.push(this.channels[ch]);
         return chans;
     },
+    get info() { return this.server.ServerInfo; },
     set: function (server) {
         this.server = server;
         var that    = this;

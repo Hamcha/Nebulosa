@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"time"
 )
 
 var sio *socketio.SocketIOServer
@@ -32,15 +33,11 @@ func onDisconnect(ns *socketio.NameSpace) {
 	delete(namespaces, ns.Id())
 }
 
-func onCommand(ns *socketio.NameSpace, server, command, target, text string) {
-	msg := Message{
-		Command: command,
-		Target:  target,
-		Text:    text,
-	}
+func onCommand(ns *socketio.NameSpace, server string, message Message) {
 	cmsg := ClientMessage{
 		ServerId: server,
-		Message:  msg,
+		Message:  message,
+		DateTime: time.Now().Unix(),
 	}
 	val, err := json.Marshal(cmsg)
 	if err != nil {
@@ -48,7 +45,11 @@ func onCommand(ns *socketio.NameSpace, server, command, target, text string) {
 		return
 	}
 
+	// Send to server
 	fmt.Fprintln(conn, "EXECUTE "+string(val))
+
+	// Broadcast back to all connected clients
+	handle("IRC", cmsg)
 }
 
 func main() {
