@@ -22,29 +22,32 @@ Interface = {
 			return function(cname) { Interface.switchTo(server, cname); };
 		};
 
-		// For every given server
-		for (var server in serverList) {
-
+		var addServer = function (sid, server) {
 			// Create server block
 			var item = document.createElement("x-server-block");
 
 			// Fill in the data
-			item.serverName = serverList[server].ServerInfo.ServName;
-			item.id = server;
-			item.set(serverList[server]);
-			item.onChannelClick = onchange(server);
+			item.serverName = server.ServerInfo.ServName;
+			item.id = sid;
+			item.set(server);
+			item.onChannelClick = onchange(sid);
 
 			// Add it to the DOM
 			document.getElementById("channels").appendChild(item);
 
 			// Create the server object
-			Interface.servers[server] = { "server":item, "channels": {}, "users": {} };
+			Interface.servers[sid] = { "server":item, "channels": {}, "users": {} };
 
 			// Fill in the channels
-			for (var channel in serverList[server].Channels) {
-				Interface.createChannel(server, channel);
-				Interface.servers[server].users[channel].init(serverList[server].Channels[channel].Users);
+			for (var channel in server.Channels) {
+				Interface.createChannel(sid, channel);
+				Interface.servers[sid].users[channel].init(server.Channels[channel].Users);
 			}
+		};
+
+		// For every given server
+		for (var server in serverList) {
+			addServer(server, serverList[server]);
 		}
 
 		// Set default server and channel if available
@@ -150,24 +153,24 @@ Interface = {
 	},
 
 	switchTo : function (sname, cname) {
-		// Change server selection if changed
-		if (Interface.currentServerId !== sname) {
-			Interface.currentServer.server.deselect();
-		}
+		// Change channel/server box
+		Interface.currentServer.server.deselect();
 		Interface.servers[sname].server.select(cname);
 
-		// Change channel selection
+		// Hide current channel box and user list
 		Interface.currentChannel.blur();
-		Interface.servers[sname].channels[cname].focus();
 		Interface.currentUserList.blur();
-		Interface.servers[sname].users[cname].focus();
 
-		// Change current server / channel value
+		// Change channel id / server id
 		Interface.currentServerId  = sname;
 		Interface.currentChannelId = cname;
 
+		// Change and show new channelbox and userlist
+		Interface.currentChannel.focus();
+		Interface.currentUserList.focus();
+
 		// Change topic if there is one
-		document.getElementById("topic").innerHTML = Interface.servers[sname].channels[cname].topic;
+		document.getElementById("topic").innerHTML = Interface.currentChannel.topic;
 		if (Interface.servers[sname].channels[cname].topic !== "")
 			document.getElementById("topicBy").innerHTML = "set by " + Interface.servers[sname].channels[cname].topicBy;
 	},

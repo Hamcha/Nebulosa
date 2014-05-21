@@ -11,6 +11,17 @@
 			"Realname" : "Nebudue Client",
 
 			"Channels" : ["#testbass", "#testbass2"]
+		},
+		"azzurra" : {
+			"ServName" : "Azzurra",
+			"Address"  : "irc.azzurra.org:6667",
+
+			"Username" : "nebudue",
+			"Nickname" : "nebudue",
+			"Altnick"  : "nebutre",
+			"Realname" : "Nebudue Client",
+
+			"Channels" : ["#testbass", "#testbass2"]
 		}
 	}
 }

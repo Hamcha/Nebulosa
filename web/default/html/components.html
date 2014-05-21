@@ -215,10 +215,12 @@ hr { border: 0;}
 <script>
 Polymer('x-server-block', {
     serverName : "Unnamed server",
-    server     : {},
-    selected   : "",
-    channels   : {},
-    onChannelClick : null,
+    ready: function () {
+        this.channels = {};
+        this.selected = "";
+        this.onChannelClick = null;
+        this.server = {};
+    },
     get chanArray() {
         var chans = [];
         for (var ch in this.channels)
@@ -254,7 +256,7 @@ Polymer('x-server-block', {
 </script>
 </polymer-element>
 
-<polymer-element name="x-channel-box">
+<polymer-element name="x-channel-box" attributes="topic topicBy">
 <template>
 <style>
 ul#chatContainer {

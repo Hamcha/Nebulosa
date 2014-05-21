@@ -110,8 +110,9 @@ func receive(client *Client, messages chan ClientMessage) {
 }
 
 func handle(c *Client, parts []string, text string, messages chan ClientMessage) {
+
 	// If PING autorespond PONG and quit
-	if parts[0] == "PING" {
+	if strings.ToUpper(parts[0]) == "PING" {
 		fmt.Fprintf(c.Socket, "PONG %s\r\n", text)
 		return
 	}
@@ -120,10 +121,10 @@ func handle(c *Client, parts []string, text string, messages chan ClientMessage)
 	msg.Source = parseUser(parts[0])
 
 	if len(parts) > 1 {
-		msg.Command = parts[1]
+		msg.Command = strings.ToUpper(parts[1])
 	}
 	if len(parts) > 2 {
-		msg.Target = parts[2]
+		msg.Target = strings.ToLower(parts[2])
 	}
 
 	msg.Text = text
@@ -154,6 +155,9 @@ func handle(c *Client, parts []string, text string, messages chan ClientMessage)
 
 	// Have we joined somewhere?
 	if msg.Command == "JOIN" && msg.Source.Nickname == c.ServerInfo.Nickname {
+		if msg.Target == "" {
+			msg.Target = msg.Text
+		}
 		fmt.Fprintf(c.Socket, "NAMES %s\r\n", msg.Target)
 		channel := new(Channel)
 		channel.Name = msg.Target
